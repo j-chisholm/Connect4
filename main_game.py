@@ -27,10 +27,32 @@ def DisplayGameBoard():
     print(' ' * 4, end='')
     print('   '.join(col_labels))
 
+def GetUserInput(current_player):
+    # TODO: Function is incomplete. Validate that the chosen column is not full.
+    # Prompt the user for an input and validate it against the current board state
+    is_input_valid = False
+    while not is_input_valid:
+        print(f"\nPlayer {current_player}'s turn...")
+        player_input = input("Which column will you place your piece?: ")
+        try:
+            player_input = int(player_input)
+            if player_input not in range(1, 8):
+                print("Sorry, that input is not in the range 1-7.\nPlease try again!")
+            else:
+                is_input_valid = True
+        except ValueError:
+            print("That is not a number, please try again!")
+
+    return is_input_valid
+
 def main():
     InitializeGameBoard()
     DisplayGameBoard()
 
     is_game_over = False
+    current_player = 1
+
+    while not is_game_over:
+        pass
 
 main()
