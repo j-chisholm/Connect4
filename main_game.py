@@ -1,3 +1,6 @@
+import random
+import time
+
 # List variable to track the current board state
 GAME_BOARD = []
 # Initialize dict variable to track the number of entries to each column
@@ -31,6 +34,15 @@ def DisplayGameBoard():
     print(' ' * 4, end='')
     print('   '.join(col_labels))
 
+# Generates a random, valid input for the AI opponent
+def GenerateAIMove():
+    while True:
+        ai_input = int(random.randint(1, 7))
+        if COL_ENTRIES[ai_input] < 6:
+            break
+
+    return ai_input
+
 # Prompts the player for an input and returns it if it is valid
 def GetPlayerInput(current_player):
     # Print instructions to the player
@@ -39,13 +51,14 @@ def GetPlayerInput(current_player):
 
     # Validates the user's input, if invalid, prompt the user for a new input
     while not IsInputValid(player_input):
+        DisplayGameBoard()
+        print(f"\nPlayer {current_player}'s turn...")
         player_input = input("Choose a column to drop your piece: ")
 
     return int(player_input)
 
 # Validate user input against the current board state
 def IsInputValid(player_input):
-    # TODO: Function is incomplete. Validate that the chosen column is not full.
     try:
         player_input = int(player_input)
         if player_input not in range(1, 8):
@@ -70,6 +83,12 @@ def UpdateGameBoard(col, player_piece):
     # Update the number of entries by 1 if the column is not full
     COL_ENTRIES[col] = COL_ENTRIES[col] + 1
 
+# Checks if any column in the game board is not full
+def IsBoardFull():
+    for num_entries in COL_ENTRIES.values():
+        if num_entries != 7:
+            return False
+    return True
 
 def main():
     InitializeGameBoard()
@@ -82,12 +101,20 @@ def main():
     while not is_game_over:
         if current_player == '1':
             player_piece = 'X'
+            player_input = GetPlayerInput(current_player)
+            UpdateGameBoard(player_input, player_piece)
+            current_player = '2'
         else:
+            print("Computer's turn...")
+            time.sleep(2)
             player_piece = 'O'
+            UpdateGameBoard(GenerateAIMove(), player_piece)
+            current_player = '1'
 
-        player_input = GetPlayerInput(current_player)
+        if IsBoardFull():
+            is_game_over = True
+            print('DRAW!')
 
-        UpdateGameBoard(player_input, player_piece)
         DisplayGameBoard()
 
 main()
