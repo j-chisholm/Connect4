@@ -1,4 +1,7 @@
+# List variable to track the current board state
 GAME_BOARD = []
+# Initialize dict variable to track the number of entries to each column
+COL_ENTRIES = {col: 0 for col in range(1, 8)}
 
 # Initialize a 6x7 game board and set each position to a single space
 def InitializeGameBoard():
@@ -32,11 +35,11 @@ def DisplayGameBoard():
 def GetPlayerInput(current_player):
     # Print instructions to the player
     print(f"\nPlayer {current_player}'s turn...")
-    player_input = input("Which column will you place your piece?: ")
+    player_input = input("Choose a column to drop your piece: ")
 
     # Validates the user's input, if invalid, prompt the user for a new input
     while not IsInputValid(player_input):
-        player_input = input("Which column will you place your piece?: ")
+        player_input = input("Choose a column to drop your piece: ")
 
     return int(player_input)
 
@@ -47,6 +50,10 @@ def IsInputValid(player_input):
         player_input = int(player_input)
         if player_input not in range(1, 8):
             print("Sorry, that input is not in the range 1-7.\nPlease try again!")
+        # check if the the column is full
+        elif COL_ENTRIES[player_input] >= 6:
+            print("Your chosen column is full, please try again!")
+            return False
         else:
             return True
     except ValueError:
@@ -57,15 +64,12 @@ def IsInputValid(player_input):
 
 # Places the player's piece in their chosen column
 def UpdateGameBoard(col, player_piece):
-    # Ensures player choice is within list bounds (0-indexed)
-    col = col - 1
+    row = COL_ENTRIES[col]
+    GAME_BOARD[5 - row][col-1] = player_piece
 
-    # Checks the column from the bottom up to locate an empty space and places
-    # player's piece in that space
-    for i in range(5, -1, -1):
-        if GAME_BOARD[i][col] == ' ':
-            GAME_BOARD[i][col] = player_piece
-            break
+    # Update the number of entries by 1 if the column is not full
+    COL_ENTRIES[col] = COL_ENTRIES[col] + 1
+
 
 def main():
     InitializeGameBoard()
