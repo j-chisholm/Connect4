@@ -52,16 +52,19 @@ def GenerateAIMove(num_tokens_per_col):
 def GetPlayerChoice(current_player):
     # Print instructions to the player
     print(f"\nPlayer {current_player}'s turn...")
-    player_choice = input("Choose a column to drop your token: ")
+    player_choice = input("Enter a column (1-7) to to drop your token: ")
 
-    return int(player_choice)
+    return player_choice
 
 # Validate user input against the current board state
 def IsChoiceValid(player_choice, num_tokens_per_col):
+    if player_choice == '':
+        print("\nNo value entered.\nPlease try again!")
+        return False
     try:
         player_choice = int(player_choice)
         if player_choice not in range(1, NUM_COLS + 1):
-            print("Sorry, that choice is not in the range 1-7.\nPlease try again!")
+            print("\nSorry, that choice is not in the range 1-7.\nPlease try again!")
         # check if the column is full
         elif num_tokens_per_col[player_choice] >= NUM_ROWS:
             print("\nThat column is full, please try again!")
@@ -69,7 +72,7 @@ def IsChoiceValid(player_choice, num_tokens_per_col):
         else:
             return True
     except ValueError:
-        print("That is not a number, please try again!")
+        print("\nThat is not a number, please try again!")
         return False
     except OverflowError:
         print("That number is too large, please try again!")
@@ -114,15 +117,17 @@ def main():
         if current_player == '1':
             player_token = 'X'
 
-            player_choice = GetPlayerChoice(current_player)
-
             # Continue to prompt user until they provide a valid move
-            while not IsChoiceValid(player_choice, num_tokens_per_col):
-                time.sleep(2)
-                DisplayGameBoard(game_board)
+            while True:
                 player_choice = GetPlayerChoice(current_player)
 
-            game_board, num_tokens_per_col = UpdateGameBoard(player_choice, player_token,
+                if not IsChoiceValid(player_choice, num_tokens_per_col):
+                    time.sleep(1.5)
+                    DisplayGameBoard(game_board)
+                else:
+                    break
+
+            game_board, num_tokens_per_col = UpdateGameBoard(int(player_choice), player_token,
                                                              game_board, num_tokens_per_col)
             # current_player = '2'
         else:
