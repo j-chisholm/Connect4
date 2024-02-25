@@ -42,11 +42,11 @@ def DisplayGameBoard(game_board):
 # Generates a random, valid input for the AI opponent
 def GenerateAIMove(num_tokens_per_col):
     while True:
-        ai_input = int(random.randint(1, NUM_COLS))
-        if num_tokens_per_col[ai_input] < NUM_ROWS:
+        ai_choice = int(random.randint(1, NUM_COLS))
+        if num_tokens_per_col[ai_choice] < NUM_ROWS:
             break
 
-    return ai_input
+    return ai_choice
 
 # Prompts the player for an input and returns it if it is valid
 def GetPlayerChoice(current_player):
@@ -62,7 +62,7 @@ def IsChoiceValid(player_choice, num_tokens_per_col):
         player_choice = int(player_choice)
         if player_choice not in range(1, NUM_COLS + 1):
             print("Sorry, that choice is not in the range 1-7.\nPlease try again!")
-        # check if the the column is full
+        # check if the column is full
         elif num_tokens_per_col[player_choice] >= NUM_ROWS:
             print("\nThat column is full, please try again!")
             return False
@@ -118,6 +118,7 @@ def main():
 
             # Continue to prompt user until they provide a valid move
             while not IsChoiceValid(player_choice, num_tokens_per_col):
+                time.sleep(2)
                 DisplayGameBoard(game_board)
                 player_choice = GetPlayerChoice(current_player)
 
