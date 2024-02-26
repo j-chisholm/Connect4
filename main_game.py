@@ -179,6 +179,7 @@ def main():
 
             # Check if player's move resulted in 4 in a row
             if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+                DisplayGameBoard(game_board)
                 print(f"\nPlayer {current_player} wins!")
                 break
 
@@ -194,16 +195,19 @@ def main():
 
             # Check if player's move resulted in 4 in a row
             if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+                DisplayGameBoard(game_board)
                 print(f"\nComputer wins!")
                 break
 
             current_player = '1'
+
+        DisplayGameBoard(game_board)
 
         # End the game if the board is full
         if IsBoardFull(num_tokens_per_col):
             is_game_over = True
             print('DRAW!')
 
-        DisplayGameBoard(game_board)
+    input("Press Enter to exit...")
 
 main()
