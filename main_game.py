@@ -102,6 +102,24 @@ def CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col)
     # Check for four in a row to the right
     if IsFourInDirection(game_board, player_token, start_row, start_col, 0, 1):
         return True
+    # Check for four in a row to the left
+    if IsFourInDirection(game_board, player_token, start_row, start_col, 0, -1):
+        return True
+    # Check for four in a row vertically
+    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, 0):
+        return True
+    # Check for diagonals up and to the right
+    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, 1):
+        return True
+    # Check for diagonals up and to the left
+    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, -1):
+        return True
+    # Check for diagonals down and to the right
+    if IsFourInDirection(game_board, player_token, start_row, start_col, -1, 1):
+        return True
+    # Check for diagonals down and to the left
+    if IsFourInDirection(game_board, player_token, start_row, start_col, -1, -1):
+        return True
 
 # Checks for four in a row in a given direction. Parameters row_increment,
 # col_increment can be passed -1, 0, 1 to dictate which direction the
@@ -132,13 +150,13 @@ def IsFourInDirection(game_board, player_token, start_row, start_col, row_increm
 
 def main():
     game_board, num_tokens_per_col = InitializeGame()
-
     DisplayGameBoard(game_board)
 
     is_game_over = False
     current_player = '1'
 
     while not is_game_over:
+        # Player 1's turn
         if current_player == '1':
             player_token = 'X'
 
@@ -147,31 +165,45 @@ def main():
                 player_choice = GetPlayerChoice(current_player)
 
                 if not IsChoiceValid(player_choice, num_tokens_per_col):
+                    # Pause execution to allow player time to read on screen instructions
                     time.sleep(1.5)
                     DisplayGameBoard(game_board)
+
+                # Player's move is valid and can be converted to INT
                 else:
                     player_choice = int(player_choice)
                     break
 
             game_board, num_tokens_per_col = UpdateGameBoard(player_choice, player_token,
                                                              game_board, num_tokens_per_col)
-            DisplayGameBoard(game_board)
 
+            # Check if player's move resulted in 4 in a row
             if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
                 print(f"\nPlayer {current_player} wins!")
                 break
-            # current_player = '2'
+
+            current_player = '2'
         else:
             print("Computer's turn...")
-            time.sleep(2)
+            time.sleep(1)
+
             player_token = 'O'
-            UpdateGameBoard(GenerateAIMove(num_tokens_per_col), player_token, game_board, num_tokens_per_col)
+            player_choice = GenerateAIMove(num_tokens_per_col)
+
+            UpdateGameBoard(player_choice, player_token, game_board, num_tokens_per_col)
+
+            # Check if player's move resulted in 4 in a row
+            if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+                print(f"\nComputer wins!")
+                break
+
             current_player = '1'
 
+        # End the game if the board is full
         if IsBoardFull(num_tokens_per_col):
             is_game_over = True
             print('DRAW!')
 
-        # DisplayGameBoard(game_board)
+        DisplayGameBoard(game_board)
 
 main()
