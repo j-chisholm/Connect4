@@ -1,6 +1,7 @@
 pseudocode.txt
 build/
 dist/
+.idea/
 __pycache__/
 *.spec
 *.exe
