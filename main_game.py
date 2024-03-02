@@ -99,54 +99,53 @@ def CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col)
     start_row = NUM_ROWS - num_tokens_per_col[player_choice]
     start_col = player_choice - 1
 
-    # Check for four in a row to the right
-    if IsFourInDirection(game_board, player_token, start_row, start_col, 0, 1):
-        return True
-    # Check for four in a row to the left
-    if IsFourInDirection(game_board, player_token, start_row, start_col, 0, -1):
+    # Check for four in a row horizontally
+    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 0, 1) +
+            NumAdjacentTokens(game_board, player_token, start_row, start_col, 0, -1)) >= 3:
         return True
     # Check for four in a row vertically
-    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, 0):
+    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, 0) +
+            NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, 0)) >= 3:
         return True
-    # Check for diagonals up and to the right
-    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, 1):
+    # Check for up-right diagonal
+    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, 1) +
+            NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, -1)) >= 3:
         return True
-    # Check for diagonals up and to the left
-    if IsFourInDirection(game_board, player_token, start_row, start_col, 1, -1):
-        return True
-    # Check for diagonals down and to the right
-    if IsFourInDirection(game_board, player_token, start_row, start_col, -1, 1):
-        return True
-    # Check for diagonals down and to the left
-    if IsFourInDirection(game_board, player_token, start_row, start_col, -1, -1):
+    # Check for down-right diagonal
+    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, 1) +
+            NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, -1)) >= 3:
         return True
 
-# Checks for four in a row in a given direction. Parameters row_increment,
-# col_increment can be passed -1, 0, 1 to dictate which direction the
-# function checks for four in a row
-def IsFourInDirection(game_board, player_token, start_row, start_col, row_increment, col_increment):
+    # If execution reaches this line, 4 in a row was not found
+    return False
+
+# Checks for adjacent tokens in a single direction.
+# Returns the number of tokens found. Parameters row_increment, col_increment can be passed -1, 0, 1
+# to dictate which direction the function checks for adjacent matching tokens
+def NumAdjacentTokens(game_board, player_token, start_row, start_col, row_increment, col_increment):
     row_index = start_row
     col_index = start_col
+    count = 0
 
     # Try block catches the instance where the function searches out of bounds for a player token
     try:
         # Only checks the next 3 spaces in a given direction,
         # no need to check that the player's current move matches their token
         for i in range(3):
-            # Move to the next space in the specified direction
+            # Move to the next adjacent space
             row_index += row_increment
             col_index += col_increment
 
-            # Return function execution to the main function after finding a different token before
-            # 3 matching tokens have been found
-            if game_board[row_index][col_index] != player_token:
-                return False
+            # Increase the number of consecutive tokens found, otherwise return the number of tokens
+            if game_board[row_index][col_index] == player_token:
+                count += 1
+            else:
+                break
+
+        return count
     # Function reached the end of the board before 3 matching tokens were found
     except IndexError:
-        return False
-
-    # Program execution can only reach this line via finding 4 matching tokens in a row
-    return True
+        return count
 
 def main():
     game_board, num_tokens_per_col = InitializeGame()
