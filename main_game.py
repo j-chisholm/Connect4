@@ -205,8 +205,12 @@ def main():
             UpdateGameBoard(player_choice, player_token)
 
             # Check if player's move resulted in 4 in a row
+<<<<<<< HEAD
             if CheckFourInARow(player_token, player_choice):
                 DisplayGameBoard()
+=======
+            if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+>>>>>>> parent of e1f0407 (Created a .exe)
                 print(f"\nPlayer {current_player} wins!")
                 is_game_over = PlayAgainPrompt()
                 continue
@@ -222,18 +226,30 @@ def main():
             UpdateGameBoard(player_choice, player_token)
 
             # Check if player's move resulted in 4 in a row
+<<<<<<< HEAD
             if CheckFourInARow(player_token, player_choice):
                 DisplayGameBoard()
+=======
+            if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+>>>>>>> parent of e1f0407 (Created a .exe)
                 print(f"\nComputer wins!")
                 is_game_over = PlayAgainPrompt()
                 continue
 
             current_player = '1'
 
+<<<<<<< HEAD
         DisplayGameBoard()
 
+=======
+>>>>>>> parent of e1f0407 (Created a .exe)
         # End the game if the board is full
         if IsBoardFull():
             print('DRAW!')
 
+<<<<<<< HEAD
+=======
+        DisplayGameBoard(game_board)
+
+>>>>>>> parent of e1f0407 (Created a .exe)
 main()
