@@ -5,22 +5,28 @@ import time
 NUM_ROWS = 6
 NUM_COLS = 7
 
+# Global variables
+game_board = []  # List that stores all the tokens placed on the game board
+num_tokens_per_col = {}  # Dictionary that keeps track of the number of tokens placed in a column
+
 # Initialize a 6x7 game board and set each position to a single space
 # Initialize a dictionary to track the number of entries to each column
 def InitializeGame():
+    global game_board
+    global num_tokens_per_col
+
     num_tokens_per_col = {col: 0 for col in range(1, NUM_COLS + 1)}
 
-    board = []
+    game_board = []
     for i in range(NUM_ROWS):
         row = []
         for j in range(NUM_COLS):
             row.append(' ')
-        board.append(row)
-
-    return board, num_tokens_per_col
+        game_board.append(row)
 
 # Displays the current state of the game board
-def DisplayGameBoard(game_board):
+def DisplayGameBoard():
+    global game_board
     # Print the game board to the screen along with the row and col labels
     row_labels = ['f', 'e', 'd', 'c', 'b', 'a']
     col_labels = [str(i) for i in range(1, NUM_COLS + 1)]
@@ -40,13 +46,13 @@ def DisplayGameBoard(game_board):
     print('   '.join(col_labels))
 
 # Generates a random, valid input for the AI opponent
-def GenerateAIMove(num_tokens_per_col):
+def GenerateAIMove():
     while True:
-        ai_choice = int(random.randint(1, NUM_COLS))
-        if num_tokens_per_col[ai_choice] < NUM_ROWS:
+        computer_choice = int(random.randint(1, NUM_COLS))
+        if num_tokens_per_col[computer_choice] < NUM_ROWS:
             break
 
-    return ai_choice
+    return computer_choice
 
 # Prompts the player for an input and returns it if it is valid
 def GetPlayerChoice(current_player):
@@ -57,7 +63,7 @@ def GetPlayerChoice(current_player):
     return player_choice
 
 # Validate user input against the current board state
-def IsChoiceValid(player_choice, num_tokens_per_col):
+def IsChoiceValid(player_choice):
     if player_choice == '':
         print("\nNo value entered.\nPlease try again!")
         return False
@@ -78,42 +84,43 @@ def IsChoiceValid(player_choice, num_tokens_per_col):
         print("That number is too large, please try again!")
 
 # Places the player's token in their chosen column
-def UpdateGameBoard(col, player_token, game_board, num_tokens_per_col):
+def UpdateGameBoard(col, player_token):
+    global game_board
+    global num_tokens_per_col
+
     row = num_tokens_per_col[col]
     game_board[NUM_ROWS - 1 - row][col-1] = player_token
 
     # Update the number of entries by 1 if the column is not full
     num_tokens_per_col[col] = num_tokens_per_col[col] + 1
 
-    return game_board, num_tokens_per_col
-
 # Checks if any column in the game board is not full
-def IsBoardFull(num_tokens_per_col):
+def IsBoardFull():
     for num_tokens in num_tokens_per_col.values():
         if num_tokens != NUM_ROWS:
             return False
     return True
 
 # Checks the board to determine if there are 4 of the same tokens in a row
-def CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
+def CheckFourInARow(player_token, player_choice):
     start_row = NUM_ROWS - num_tokens_per_col[player_choice]
     start_col = player_choice - 1
 
     # Check for four in a row horizontally
-    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 0, 1) +
-            NumAdjacentTokens(game_board, player_token, start_row, start_col, 0, -1)) >= 3:
+    if (NumAdjacentTokens(player_token, start_row, start_col, 0, 1) +
+            NumAdjacentTokens(player_token, start_row, start_col, 0, -1)) >= 3:
         return True
     # Check for four in a row vertically
-    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, 0) +
-            NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, 0)) >= 3:
+    if (NumAdjacentTokens(player_token, start_row, start_col, 1, 0) +
+            NumAdjacentTokens(player_token, start_row, start_col, -1, 0)) >= 3:
         return True
     # Check for up-right diagonal
-    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, 1) +
-            NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, -1)) >= 3:
+    if (NumAdjacentTokens(player_token, start_row, start_col, 1, 1) +
+            NumAdjacentTokens(player_token, start_row, start_col, -1, -1)) >= 3:
         return True
     # Check for down-right diagonal
-    if (NumAdjacentTokens(game_board, player_token, start_row, start_col, -1, 1) +
-            NumAdjacentTokens(game_board, player_token, start_row, start_col, 1, -1)) >= 3:
+    if (NumAdjacentTokens(player_token, start_row, start_col, -1, 1) +
+            NumAdjacentTokens(player_token, start_row, start_col, 1, -1)) >= 3:
         return True
 
     # If execution reaches this line, 4 in a row was not found
@@ -122,7 +129,7 @@ def CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col)
 # Checks for adjacent tokens in a single direction.
 # Returns the number of tokens found. Parameters row_increment, col_increment can be passed -1, 0, 1
 # to dictate which direction the function checks for adjacent matching tokens
-def NumAdjacentTokens(game_board, player_token, start_row, start_col, row_increment, col_increment):
+def NumAdjacentTokens(player_token, start_row, start_col, row_increment, col_increment):
     row_index = start_row
     col_index = start_col
     count = 0
@@ -147,9 +154,31 @@ def NumAdjacentTokens(game_board, player_token, start_row, start_col, row_increm
     except IndexError:
         return count
 
+def PlayAgainPrompt():
+    yes = ['y', 'yes']
+    no = ['n', 'no']
+
+    # Gives the player 3 attempts to enter a valid input
+    for i in range(2, -1, -1):
+        user_input = input("Would you like to play again? [yes, no]: ").lower()
+        if user_input in yes:
+            print("Resetting the game...")
+            InitializeGame()  # Restart the game
+            time.sleep(2)
+            DisplayGameBoard()
+            return False
+        elif user_input in no:
+            print("Exiting...")
+            return True
+        elif i > 0:
+            print(f"Not a valid input. The game will exit after {i} more invalid inputs...\n")
+
+    print("No more attempts remaining, game will now end...")
+    return True
+
 def main():
-    game_board, num_tokens_per_col = InitializeGame()
-    DisplayGameBoard(game_board)
+    InitializeGame()
+    DisplayGameBoard()
 
     is_game_over = False
     current_player = '1'
@@ -163,24 +192,24 @@ def main():
             while True:
                 player_choice = GetPlayerChoice(current_player)
 
-                if not IsChoiceValid(player_choice, num_tokens_per_col):
+                if not IsChoiceValid(player_choice):
                     # Pause execution to allow player time to read on screen instructions
                     time.sleep(1.5)
-                    DisplayGameBoard(game_board)
+                    DisplayGameBoard()
 
                 # Player's move is valid and can be converted to INT
                 else:
                     player_choice = int(player_choice)
                     break
 
-            game_board, num_tokens_per_col = UpdateGameBoard(player_choice, player_token,
-                                                             game_board, num_tokens_per_col)
+            UpdateGameBoard(player_choice, player_token)
 
             # Check if player's move resulted in 4 in a row
-            if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
-                DisplayGameBoard(game_board)
+            if CheckFourInARow(player_token, player_choice):
+                DisplayGameBoard()
                 print(f"\nPlayer {current_player} wins!")
-                break
+                is_game_over = PlayAgainPrompt()
+                continue
 
             current_player = '2'
         else:
@@ -188,25 +217,23 @@ def main():
             time.sleep(1)
 
             player_token = 'O'
-            player_choice = GenerateAIMove(num_tokens_per_col)
+            player_choice = GenerateAIMove()
 
-            UpdateGameBoard(player_choice, player_token, game_board, num_tokens_per_col)
+            UpdateGameBoard(player_choice, player_token)
 
             # Check if player's move resulted in 4 in a row
-            if CheckFourInARow(game_board, player_token, player_choice, num_tokens_per_col):
-                DisplayGameBoard(game_board)
+            if CheckFourInARow(player_token, player_choice):
+                DisplayGameBoard()
                 print(f"\nComputer wins!")
-                break
+                is_game_over = PlayAgainPrompt()
+                continue
 
             current_player = '1'
 
-        DisplayGameBoard(game_board)
+        DisplayGameBoard()
 
         # End the game if the board is full
-        if IsBoardFull(num_tokens_per_col):
-            is_game_over = True
+        if IsBoardFull():
             print('DRAW!')
-
-    input("Press Enter to exit...")
 
 main()
