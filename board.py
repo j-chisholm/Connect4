@@ -10,17 +10,26 @@ class Board:
 
     # Ensure that only one instance of this class exists
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
+        if not cls.instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
+        return cls.instance
 
-    # Initializes the board, takes in two parameters (rows, cols) that
-    # define the board size.
     def __init__(self, rows, cols):
         # Set the board size
         self.num_rows = rows
         self.num_cols = cols
 
+        # Set the board labels to none
+        self.row_labels = None
+        self.col_labels = None
+
+        # Assign the game board and token tracker to empty containers
+        self.game_board = []
+        self.num_tokens_per_col = {}
+
+    # Initializes the board, takes in two parameters (rows, cols) that
+    # define the board size.
+    def ResetBoard(self):
         # Set the labels for the rows and columns
         self.row_labels = ['f', 'e', 'd', 'c', 'b', 'a']
         self.col_labels = [str(i) for i in range(1, self.num_cols + 1)]
@@ -126,6 +135,10 @@ class Board:
         except IndexError:
             return count
 
+    # Returns the token tracker (dictionary)
     def GetTokensPerColumn(self):
         return self.num_tokens_per_col
-    
+
+    # Returns the board size as a list [rows, columns]
+    def GetBoardSize(self):
+        return self.num_rows, self.num_cols
