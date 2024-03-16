@@ -112,7 +112,10 @@ class Board:
                     break
 
             return count
-        
+
         # Function reached the end of the board before 3 matching tokens were found
         except IndexError:
             return count
+
+    def GetTokensPerColumn(self):
+        return self.num_tokens_per_col
