@@ -1,9 +1,18 @@
 # Board Class
+# Singleton
 # This class represents the game board for Connect Four. It handles
 # the board state including updating and displaying the board and
 # checking for winning conditions.
 
 class Board:
+
+    instance = None
+
+    # Ensure that only one instance of this class exists
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
 
     # Initializes the board, takes in two parameters (rows, cols) that
     # define the board size.
@@ -119,3 +128,4 @@ class Board:
 
     def GetTokensPerColumn(self):
         return self.num_tokens_per_col
+    
