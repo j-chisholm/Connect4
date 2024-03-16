@@ -5,7 +5,6 @@
 # checking for winning conditions.
 
 class Board:
-
     instance = None
 
     # Ensure that only one instance of this class exists
@@ -91,19 +90,19 @@ class Board:
 
         # Check for four in a row horizontally
         if (self.NumAdjacentTokens(player_token, start_row, start_col, 0, 1) +
-            self.NumAdjacentTokens(player_token, start_row, start_col, 0, -1)) >= 3:
+                self.NumAdjacentTokens(player_token, start_row, start_col, 0, -1)) >= 3:
             return True
         # Check for four in a row vertically
         if (self.NumAdjacentTokens(player_token, start_row, start_col, 1, 0) +
-            self.NumAdjacentTokens(player_token, start_row, start_col, -1, 0)) >= 3:
+                self.NumAdjacentTokens(player_token, start_row, start_col, -1, 0)) >= 3:
             return True
         # Check for up-right diagonal
         if (self.NumAdjacentTokens(player_token, start_row, start_col, 1, 1) +
-            self.NumAdjacentTokens(player_token, start_row, start_col, -1, -1)) >= 3:
+                self.NumAdjacentTokens(player_token, start_row, start_col, -1, -1)) >= 3:
             return True
         # Check for down-right diagonal
         if (self.NumAdjacentTokens(player_token, start_row, start_col, -1, 1) +
-            self.NumAdjacentTokens(player_token, start_row, start_col, 1, -1)) >= 3:
+                self.NumAdjacentTokens(player_token, start_row, start_col, 1, -1)) >= 3:
             return True
 
         # If execution reaches this line, 4 in a row was not found
