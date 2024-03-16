@@ -1,4 +1,3 @@
-import io
 import sys
 import time
 from game_manager import GameManager
@@ -23,7 +22,11 @@ def GettingStarted():
 
 # Reads the rules from an external file and presents it to the player
 def Rules():
-    pass
+    file = 'rules.txt'
+    with open(file, 'r') as file:
+        for line in file:
+            print(line, end='')
+    file.close()
 
 # Selects the game mode type
 def GameModeSelector():
@@ -55,7 +58,6 @@ def main():
         option = GettingStarted()
 
         if option == 1:
-            print("Rules")
             Rules()
             continue
         elif option == 2:

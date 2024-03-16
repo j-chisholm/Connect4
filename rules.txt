@@ -1,6 +1,12 @@
 Below are the rules of Connect 4:
-1. Players take turns dropping one token into the grid on a vertical board with six rows and seven columns.
+1. Players take turns dropping one token into the grid on a vertical board
+with six rows and seven columns.
 2. Each player has their own style of token.
-3. The first player to get four of these tokens in a row, either horizontally, vertically, or diagonally, wins. Other configurations, like squares, don't count as winning combinations.
-4. When a player drops a disc, it goes to the lowest available space in the column.
-5. If the board is filled without a player getting four, the game ends in a draw. 
+3. The first player to get four of these tokens in a row, either horizontally,
+vertically, or diagonally, wins. Other configurations, like squares, don't
+count as winning combinations.
+4. When a player drops a token, it goes to the lowest available space in the
+column.
+5. If the board is filled without a player getting four, the game ends in a
+draw. 
+
