@@ -112,6 +112,7 @@ class Board:
                     break
 
             return count
+        
         # Function reached the end of the board before 3 matching tokens were found
         except IndexError:
             return count
