@@ -13,9 +13,9 @@ class GameManager:
     instance = None
 
     # Ensure that only one instance of this class exists
-    def __new__(cls, *args, **kwargs):
-        if not cls.instance:
-            cls._instance = super().__new__(cls, *args, **kwargs)
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
         return cls.instance
 
     def __init__(self):
@@ -38,6 +38,11 @@ class GameManager:
     def PlayPVC(self):
         self.board.ResetBoard()
         self.board.DisplayBoard()
+
+        self.player1.SetCurrentPlayer()
+        self.player1.SetPlayerToken("X")
+
+        self.player2.SetPlayerToken("0")
 
         while not self.is_game_over:
             # Determine whose turn it is
@@ -74,7 +79,8 @@ class GameManager:
                 print("Computer's turn...")
                 time.sleep(1)
 
-                player_token = 'O'
+                player_token = self.player2.GetPlayerToken()
+
                 player_choice = self.RandomMove()
 
                 self.board.UpdateBoard(player_choice, player_token)
@@ -159,4 +165,4 @@ class GameManager:
             if tokens_per_col[random_move] < num_rows:
                 break
 
-        return random
+        return random_move

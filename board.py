@@ -9,9 +9,10 @@ class Board:
     instance = None
 
     # Ensure that only one instance of this class exists
-    def __new__(cls, *args, **kwargs):
-        if not cls.instance:
-            cls._instance = super().__new__(cls, *args, **kwargs)
+    # Matched the signature of __new__ with __init__ to remove an incompatible signature error
+    def __new__(cls, rows, cols):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
         return cls.instance
 
     def __init__(self, rows, cols):
