@@ -92,6 +92,7 @@ class Board:
         if (self.NumAdjacentTokens(player_token, start_row, start_col, 0, 1) +
                 self.NumAdjacentTokens(player_token, start_row, start_col, 0, -1)) >= 3:
             return True
+
         # Check for four in a row vertically
         if (self.NumAdjacentTokens(player_token, start_row, start_col, 1, 0) +
                 self.NumAdjacentTokens(player_token, start_row, start_col, -1, 0)) >= 3:
@@ -123,12 +124,17 @@ class Board:
                 row_index += row_increment
                 col_index += col_increment
 
+                # Due to list comprehension, Python does not throw an index error for indexes that are negative.
+                # Instead, it "wraps" around to the other end of the list.
+                # Custom bounds checking and raise an IndexError if either index is negative.
+                if row_index < 0 or col_index < 0:
+                    raise IndexError
+
                 # Increase the number of consecutive tokens found, otherwise return the number of tokens
                 if self.game_board[row_index][col_index] == player_token:
                     count += 1
                 else:
                     break
-
             return count
 
         # Function reached the end of the board before 3 matching tokens were found
