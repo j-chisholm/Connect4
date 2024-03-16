@@ -29,11 +29,6 @@ class GameManager:
 
         self.is_game_over = False
 
-    # Present the instructions to the player and allow them to choose
-    # their name, number, and token
-    def Introduction(self):
-        pass
-
     # Defines the logic for Player Vs Computer
     def PlayPVC(self):
         self.board.ResetBoard()
