@@ -6,17 +6,19 @@ from game_manager import GameManager
 def GettingStarted():
     while True:
         print("Welcome to Connect 4.")
-        print("1. Read the rules ")
+        print("1. Read the rules")
         print("2. Play Game")
         print("3. Quit")
 
         option = input("What would you like to do? ")
 
-        print()
+        print()  # Empty line for clarity
 
         if IsValidOption(option, [1, 2, 3]):
             option = int(option)
             break
+
+        print("Option invalid or unavailable...\n")
 
     return option
 
@@ -30,7 +32,22 @@ def Rules():
 
 # Selects the game mode type
 def GameModeSelector():
-    pass
+    while True:
+        print("Choose your game mode.")
+        print("1. Play against the Computer")
+        print("2. coming soon...")
+
+        option = input("What would you like to do? ")
+
+        print()  # Empty line for clarity
+
+        if IsValidOption(option, [1]):
+            option = int(option)
+            break
+
+        print("Option invalid or unavailable...\n")
+
+    return option
 
 def Exit():
     print("Quitting...")
@@ -53,15 +70,21 @@ def IsValidOption(option, options):
 
 def main():
 
+    gm = GameManager()
+
     while True:
         # Display the user's options and get their response
-        option = GettingStarted()
+        option = GettingStarted()  # 1. Rules, 2. GameMode, 3. Quit
 
         if option == 1:
             Rules()
-            continue
+            continue # Return to the top of the while loop to display options again
         elif option == 2:
-            pass
+            mode = GameModeSelector() # 1. Vs Computer
+
+            if mode == 1:
+                gm.PlayPVC()
+
         elif option == 3:
             Exit()
 
