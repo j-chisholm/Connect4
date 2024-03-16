@@ -34,7 +34,7 @@ class GameManager:
     def Introduction(self):
         pass
 
-    # Defines the logic for playing against the computer
+    # Defines the logic for Player Vs Computer
     def PlayPVC(self):
         self.board.ResetBoard()
         self.board.DisplayBoard()
@@ -76,7 +76,7 @@ class GameManager:
                 # Change the current player
                 self.player1.SwapTurn()
             else:
-                print("Computer's turn...")
+                print("\nComputer's turn...")
                 time.sleep(1)
 
                 player_token = self.player2.GetPlayerToken()

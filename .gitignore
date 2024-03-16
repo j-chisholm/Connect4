@@ -6,7 +6,6 @@ __pycache__/
 *.spec
 *.exe
 *.html
-*.txt
 *.toc
 *.pyz
 *.pkg
