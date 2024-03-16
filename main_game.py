@@ -1,9 +1,11 @@
+import random
 import sys
 import time
 from game_manager import GameManager
 
 # Provides the user a list of options at the beginning of the game
-def GettingStarted():
+# Returns the user's choice as an int
+def Introduction():
     while True:
         print("Welcome to Connect 4.")
         print("1. Read the rules")
@@ -22,6 +24,25 @@ def GettingStarted():
 
     return option
 
+
+# Gets the player's name to personalize their experience
+def ChoosePlayerName():
+    char_limit = 10
+    name = input(f"What would you like to be called? ({char_limit} character limit): ")
+
+    print(f"Great! You'll be called {name}.")
+
+    return name
+
+# Allow the player to choose whether they play first or second
+def ChoosePlayerNumber():
+    pass
+
+# Allow the player to choose their token
+def ChoosePlayerToken():
+    pass
+
+
 # Reads the rules from an external file and presents it to the player
 def Rules():
     file = 'rules.txt'
@@ -30,7 +51,8 @@ def Rules():
             print(line, end='')
     file.close()
 
-# Selects the game mode type
+# Provides the user a list of game types to choose from
+# Returns the user's choice as an int
 def GameModeSelector():
     while True:
         print("Choose your game mode.")
@@ -74,15 +96,15 @@ def main():
 
     while True:
         # Display the user's options and get their response
-        option = GettingStarted()  # 1. Rules, 2. GameMode, 3. Quit
+        option = Introduction()  # 1. Rules, 2. GameMode, 3. Quit
 
-        if option == 1:
+        if option == 1:  # Show the rules
             Rules()
-            continue # Return to the top of the while loop to display options again
-        elif option == 2:
-            mode = GameModeSelector() # 1. Vs Computer
+            continue  # Return to the top of the while loop to display options again
+        elif option == 2:  # Select a game mode
+            mode = GameModeSelector()  # 1. Vs Computer
 
-            if mode == 1:
+            if mode == 1:  # Player vs computer
                 gm.PlayPVC()
 
         elif option == 3:
