@@ -21,13 +21,47 @@ class GameManager:
     def __init__(self):
         self.board = Board(6, 7)
 
-        self.player1 = Player("Player 1", 1, 'X')
-        self.player2 = Player("Computer", 2, "O")
+        self.player1 = Player(None, None, None)
+        self.player2 = Player(None, None, None)
 
         self.game_mode = None
         self.current_player = None
 
         self.is_game_over = False
+
+    # Allow the player to choose whether they play first or second
+    def ChoosePlayerNumber(self):
+        pass
+
+    # Gets the player's name to personalize their experience
+    def ChoosePlayerName(self):
+        while True:
+            char_limit = 10
+            name = input(f"What would you like to be called? ({char_limit} character limit): ")
+
+            if len(name) > char_limit:
+                print(f"Only the first {char_limit} characters of your name will be stored.")
+
+                while True:
+                    option = input(f"Is {name[:10]} okay? (yes, no): ").lower().strip()
+
+                    if option in ["yes", "y"]:
+                        print(f"Great! You'll be called {name[:10]}.")
+                        return name
+                    elif option in ["no", "n"]:
+                        break
+                    else:
+                        print("Option invalid or unavailable...\n")
+                        continue
+            else:
+                break
+
+        print(f"Great! You'll be called {name[:10]}.")
+        return name[:10]
+
+    # Allow the player to choose their token style (X or O)
+    def ChoosePlayerToken(self):
+        pass
 
     # Defines the logic for Player Vs Computer
     def PlayPVC(self):

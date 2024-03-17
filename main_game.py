@@ -24,42 +24,6 @@ def Introduction():
 
     return option
 
-
-# Gets the player's name to personalize their experience
-def ChoosePlayerName():
-    while True:
-        char_limit = 10
-        name = input(f"What would you like to be called? ({char_limit} character limit): ")
-
-        if len(name) > char_limit:
-            print(f"Only the first {char_limit} characters of your name will be stored.")
-
-            while True:
-                option = input(f"Is {name[:10]} okay? (yes, no): ").lower().strip()
-
-                if option in ["yes", "y"]:
-                    print(f"Great! You'll be called {name[:10]}.")
-                    return name
-                elif option in ["no", "n"]:
-                    break
-                else:
-                    print("Option invalid or unavailable...\n")
-                    continue
-        else:
-            break
-
-    print(f"Great! You'll be called {name[:10]}.")
-    return name[:10]
-
-# Allow the player to choose whether they play first or second
-def ChoosePlayerNumber():
-    pass
-
-# Allow the player to choose their token style (X or O)
-def ChoosePlayerToken():
-    pass
-
-
 # Reads the rules from an external file and presents it to the player
 def Rules():
     file = 'rules.txt'
