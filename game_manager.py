@@ -21,17 +21,36 @@ class GameManager:
     def __init__(self):
         self.board = Board(6, 7)
 
-        self.player1 = Player(None, None, None)
-        self.player2 = Player(None, None, None)
+        self.player1 = Player(None, 1, None)
+        self.player2 = Player(None, 2, None)
+
+        self.current_player = self.player1
 
         self.game_mode = None
-        self.current_player = None
-
         self.is_game_over = False
 
-    # Allow the player to choose whether they play first or second
+    # Allows the player to customize their information
+    def SetPlayersInfo(self):
+        if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
+            print("Great! You'll be Player 1!")
+            self.player1.SetPlayerName(self.ChoosePlayerName())
+            # self.player1.SetPlayerToken(self.ChoosePlayerToken())
+        else:
+            print("Great! You'll be Player 2!")
+            self.player2.SetPlayerName(self.ChoosePlayerName())
+            # self.player2.SetPlayerToken(self.ChoosePlayerToken())
+
+    # Allows the player to choose whether they take the first or second move
     def ChoosePlayerNumber(self):
-        pass
+        while True:
+            print("Are you Player 1 or Player 2? (Player 1 has the first turn)")
+            number = input(f"Enter 1 or 2:  ").strip()
+
+            if number not in ["1", "2"] or number == "":
+                print("Invalid entry, please try again...")
+                continue
+            else:
+                return int(number)
 
     # Gets the player's name to personalize their experience
     def ChoosePlayerName(self):
@@ -70,7 +89,6 @@ class GameManager:
 
         self.player1.SetCurrentPlayer()
         self.player1.SetPlayerToken("X")
-
         self.player2.SetPlayerToken("0")
 
         while not self.is_game_over:
@@ -103,7 +121,7 @@ class GameManager:
                     continue
 
                 # Change the current player
-                self.player1.SwapTurn()
+                self.SwapTurn()
             else:
                 print("\nComputer's turn...")
                 time.sleep(1)
@@ -122,7 +140,7 @@ class GameManager:
                     continue
 
                 # Change the current player
-                self.player1.SwapTurn()
+                self.SwapTurn()
 
             self.board.DisplayBoard()
 
@@ -155,7 +173,7 @@ class GameManager:
     # Prompts the player for an input and stores it
     def GetPlayerChoice(self, current_player):
         # Print instructions to the player
-        print(f"\nPlayer {current_player}'s turn...")
+        print(f"\n{current_player.GetPlayerName()}'s turn...")
         player_choice = input("Enter a column (1-7) to to drop your token: ")
 
         return player_choice
@@ -195,3 +213,12 @@ class GameManager:
                 break
 
         return random_move
+
+    # Swaps the player's turn to true or false
+    def SwapTurn(self):
+        if self.player1.IsCurrentPlayer():
+            self.player1.SetNotCurrentPlayer()
+            self.player2.SetCurrentPlayer()
+        else:
+            self.player2.SetNotCurrentPlayer()
+            self.player1.SetCurrentPlayer()

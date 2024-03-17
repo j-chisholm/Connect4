@@ -10,13 +10,6 @@ class Player:
 
         self.is_my_turn = False
 
-    # Swaps the player's turn to true or false
-    def SwapTurn(self):
-        if self.is_my_turn:
-            self.is_my_turn = False
-        else:
-            self.is_my_turn = True
-
     # Returns the player's name
     def GetPlayerName(self):
         return self.name
@@ -49,3 +42,6 @@ class Player:
     def SetCurrentPlayer(self):
         self.is_my_turn = True
 
+    # Sets the player as the current player
+    def SetNotCurrentPlayer(self):
+        self.is_my_turn = False
