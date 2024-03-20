@@ -9,6 +9,7 @@ class Player:
         self.token = player_token
 
         self.is_my_turn = False
+        self.isHuman = False # Designates the instance as a human (True) or a computer (False)
 
     # Returns the player's name
     def GetPlayerName(self):
@@ -38,10 +39,6 @@ class Player:
     def IsCurrentPlayer(self):
         return self.is_my_turn
 
-    # Sets the player as the current player
-    def SetCurrentPlayer(self):
-        self.is_my_turn = True
-
-    # Sets the player as the current player
-    def SetNotCurrentPlayer(self):
-        self.is_my_turn = False
+    # Designates this object as a player/human
+    def SetAsHuman(self):
+        self.isHuman = True

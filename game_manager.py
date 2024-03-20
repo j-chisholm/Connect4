@@ -21,8 +21,8 @@ class GameManager:
     def __init__(self):
         self.board = Board(6, 7)
 
-        self.player1 = Player(None, 1, None)
-        self.player2 = Player(None, 2, None)
+        self.player1 = Player("Player 1", 1, None)
+        self.player2 = Player("Player 2", 2, None)
 
         self.current_player = self.player1
 
@@ -36,6 +36,7 @@ class GameManager:
         # Player chooses to be Player 1
         if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
             print("Great! You'll be Player 1!")
+            self.player1.SetAsHuman()
             self.player1.SetPlayerName(self.ChoosePlayerName())
             self.player1.SetPlayerToken(self.ChoosePlayerToken())
 
@@ -49,6 +50,7 @@ class GameManager:
         else:
             # Player chooses to be player 2
             print("Great! You'll be Player 2!")
+            self.player2.SetAsHuman()
             self.player2.SetPlayerName(self.ChoosePlayerName())
             self.player2.SetPlayerToken(self.ChoosePlayerToken())
 
@@ -75,13 +77,15 @@ class GameManager:
     # Allow the player to choose their token style (X or O)
     def ChoosePlayerToken(self):
         while True:
-            token = input("Choose your token (X, O):").strip().lower()
+            token = input("Choose your token (X, O): ").strip().upper()
 
-            if token not in ["o", "2"] or token == "":
+            if token not in ["O", "X"] or token == "":
                 print("Invalid entry, please try again...")
                 continue
             else:
-                return token
+                break
+
+        return token
 
     # Gets the player's name to personalize their experience
     def ChoosePlayerName(self):
@@ -114,14 +118,12 @@ class GameManager:
         self.board.ResetBoard()
         self.board.DisplayBoard()
 
-        self.player1.SetCurrentPlayer()
-
         while not self.is_game_over:
-            # Determine whose turn it is
-            if self.player1.IsCurrentPlayer():
-                player_number = self.player1.GetPlayerNumber()
-                player_token = self.player1.GetPlayerToken()
 
+            player_token = self.current_player.GetPlayerToken()
+
+            # If current_player is controlled by a human, prompt the player
+            if self.current_player.isHuman:
                 # Continue to prompt user until they provide a valid move
                 while True:
                     player_choice = self.GetPlayerChoice(self.current_player)
@@ -136,36 +138,20 @@ class GameManager:
                         player_choice = int(player_choice)
                         break
 
-                self.board.UpdateBoard(player_choice, player_token)
-
-                # Check if player's move resulted in 4 in a row
-                if self.board.CheckFourInARow(player_token, player_choice):
-                    self.board.DisplayBoard()
-                    print(f"\nPlayer {player_number} wins!")
-                    self.is_game_over = self.PlayAgain()
-                    continue
-
-                # Change the current player
-                self.SwapTurn()
+            # current_player is controlled by the computer
             else:
-                print("\nComputer's turn...")
+                print(f"\n{self.current_player.GetPlayerName()}'s turn...")
+                player_choice = self.RandomMove()
                 time.sleep(1)
 
-                player_token = self.player2.GetPlayerToken()
+            self.board.UpdateBoard(player_choice, player_token)
 
-                player_choice = self.RandomMove()
-
-                self.board.UpdateBoard(player_choice, player_token)
-
-                # Check if player's move resulted in 4 in a row
-                if self.board.CheckFourInARow(player_token, player_choice):
-                    self.board.DisplayBoard()
-                    print(f"\nComputer wins!")
-                    self.is_game_over = self.PlayAgain()
-                    continue
-
-                # Change the current player
-                self.SwapTurn()
+            # Check if player's move resulted in 4 in a row
+            if self.board.CheckFourInARow(player_token, player_choice):
+                self.board.DisplayBoard()
+                print(f"\n{self.current_player.GetPlayerName()} wins!")
+                self.is_game_over = self.PlayAgain()
+                continue
 
             self.board.DisplayBoard()
 
@@ -173,6 +159,10 @@ class GameManager:
             if self.board.IsBoardFull():
                 print('DRAW!')
 
+            # Change the current player
+            self.SwapTurn()
+
+    # Allows the player to decide if they would like to play again or quit
     def PlayAgain(self):
         yes = ['y', 'yes']
         no = ['n', 'no']
@@ -239,11 +229,9 @@ class GameManager:
 
         return random_move
 
-    # Swaps the player's turn to true or false
+    # Change the current player
     def SwapTurn(self):
-        if self.player1.IsCurrentPlayer():
-            self.player1.SetNotCurrentPlayer()
-            self.player2.SetCurrentPlayer()
+        if self.current_player == self.player1:
+            self.current_player = self.player2
         else:
-            self.player2.SetNotCurrentPlayer()
-            self.player1.SetCurrentPlayer()
+            self.current_player = self.player1

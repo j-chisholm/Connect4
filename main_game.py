@@ -32,6 +32,8 @@ def Rules():
             print(line, end='')
     file.close()
 
+    input()  # Wait for user action to return to main menu
+
 # Provides the user a list of game types to choose from
 # Returns the user's choice as an int
 def GameModeSelector():
@@ -77,13 +79,13 @@ def main():
 
     while True:
         # Display the user's options and get their response
-        option = 2  # Introduction()  # 1. Rules, 2. GameMode, 3. Quit
+        option = Introduction()  # 1. Rules, 2. GameMode, 3. Quit
 
         if option == 1:  # Show the rules
             Rules()
             continue  # Return to the top of the while loop to display options again
         elif option == 2:  # Select a game mode
-            mode = 1  # GameModeSelector()  # 1. Vs Computer
+            mode = GameModeSelector()  # 1. Vs Computer
 
             if mode == 1:  # Player vs computer
                 gm.SetPlayersInfo(1)

@@ -7,6 +7,8 @@ vertically, or diagonally, wins. Other configurations, like squares, don't
 count as winning combinations.
 4. When a player drops a token, it goes to the lowest available space in the
 column.
-5. If the board is filled without a player getting four, the game ends in a
-draw. 
+5. If the board is filled without a player getting four in a row, the game
+ends in a draw. 
+
+Press ENTER to return to the main menu...
 
