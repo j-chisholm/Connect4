@@ -86,7 +86,7 @@ def main():
             mode = 1  # GameModeSelector()  # 1. Vs Computer
 
             if mode == 1:  # Player vs computer
-                gm.SetPlayersInfo()
+                gm.SetPlayersInfo(1)
                 gm.PlayPVC()
 
         elif option == 3:

@@ -8,8 +8,8 @@ import random
 from board import Board
 from player import Player
 
-class GameManager:
 
+class GameManager:
     instance = None
 
     # Ensure that only one instance of this class exists
@@ -29,16 +29,36 @@ class GameManager:
         self.game_mode = None
         self.is_game_over = False
 
-    # Allows the player to customize their information
-    def SetPlayersInfo(self):
+    # Allows the player to customize their information. Takes in an integer 'game_mode'
+    # as a parameter. The method uses the game_mode type to determine how to assign
+    # the second player
+    def SetPlayersInfo(self, game_mode):  # 1. Player vs Computer, 2. Player vs Player, 3. Computer vs Computer
+        # Player chooses to be Player 1
         if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
             print("Great! You'll be Player 1!")
             self.player1.SetPlayerName(self.ChoosePlayerName())
-            # self.player1.SetPlayerToken(self.ChoosePlayerToken())
+            self.player1.SetPlayerToken(self.ChoosePlayerToken())
+
+            # Player vs Computer. Set Player 2 to Computer
+            if game_mode == 1:
+                self.player2.SetPlayerName("Computer")
+                if self.player1.GetPlayerToken() == "X":
+                    self.player2.SetPlayerToken("O")
+                else:
+                    self.player2.SetPlayerToken("X")
         else:
+            # Player chooses to be player 2
             print("Great! You'll be Player 2!")
             self.player2.SetPlayerName(self.ChoosePlayerName())
-            # self.player2.SetPlayerToken(self.ChoosePlayerToken())
+            self.player2.SetPlayerToken(self.ChoosePlayerToken())
+
+            # Player vs Computer. Set player 1 to Computer
+            if game_mode == 1:
+                self.player1.SetPlayerName("Computer")
+                if self.player2.GetPlayerToken() == "X":
+                    self.player1.SetPlayerToken("O")
+                else:
+                    self.player1.SetPlayerToken("X")
 
     # Allows the player to choose whether they take the first or second move
     def ChoosePlayerNumber(self):
@@ -51,6 +71,17 @@ class GameManager:
                 continue
             else:
                 return int(number)
+
+    # Allow the player to choose their token style (X or O)
+    def ChoosePlayerToken(self):
+        while True:
+            token = input("Choose your token (X, O):").strip().lower()
+
+            if token not in ["o", "2"] or token == "":
+                print("Invalid entry, please try again...")
+                continue
+            else:
+                return token
 
     # Gets the player's name to personalize their experience
     def ChoosePlayerName(self):
@@ -78,18 +109,12 @@ class GameManager:
         print(f"Great! You'll be called {name[:10]}.")
         return name[:10]
 
-    # Allow the player to choose their token style (X or O)
-    def ChoosePlayerToken(self):
-        pass
-
     # Defines the logic for Player Vs Computer
     def PlayPVC(self):
         self.board.ResetBoard()
         self.board.DisplayBoard()
 
         self.player1.SetCurrentPlayer()
-        self.player1.SetPlayerToken("X")
-        self.player2.SetPlayerToken("0")
 
         while not self.is_game_over:
             # Determine whose turn it is
