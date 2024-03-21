@@ -89,7 +89,7 @@ def main():
 
             if mode == 1:  # Player vs computer
                 gm.SetPlayersInfo(1)
-                gm.PlayPVC()
+                gm.PlayGame()
 
         elif option == 3:
             Exit()

@@ -126,7 +126,7 @@ class GameManager:
                 return name[:10]
 
     # Defines the logic for Player Vs Computer
-    def PlayPVC(self):
+    def PlayGame(self):
         self.board.ResetBoard()
         self.board.DisplayBoard()
 
