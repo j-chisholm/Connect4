@@ -36,7 +36,7 @@ class GameManager:
         # Player chooses to be Player 1
         if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
             self.player1.SetAsHuman()
-            self.player1.SetPlayerName(self.ChoosePlayerName())
+            self.player1.SetPlayerName(self.ChoosePlayerName(self.player1.GetPlayerName()))
             self.player1.SetPlayerToken(self.ChoosePlayerToken())
 
             # Player vs Computer. Set Player 2 to Computer
@@ -49,7 +49,7 @@ class GameManager:
         else:
             # Player chooses to be player 2
             self.player2.SetAsHuman()
-            self.player2.SetPlayerName(self.ChoosePlayerName())
+            self.player2.SetPlayerName(self.ChoosePlayerName(self.player2.GetPlayerName()))
             self.player2.SetPlayerToken(self.ChoosePlayerToken())
 
             # Player vs Computer. Set player 1 to Computer
@@ -76,7 +76,7 @@ class GameManager:
             else:
                 break
 
-        print(f"You are Player {number}!")
+        print(f"You are Player {number}!\n")
         return int(number)
 
     # Allow the player to choose their token style (X or O)
@@ -95,23 +95,26 @@ class GameManager:
             else:
                 break
 
-        print(f"Your token is {token}!")
+        print(f"Your token is {token}!\n")
         return token
 
     # Gets the player's name to personalize their experience
-    def ChoosePlayerName(self):
+    def ChoosePlayerName(self, default_player_name):
         while True:
             char_limit = 10
             name = input(f"What would you like to be called? ({char_limit} character limit): ")
 
-            if len(name) > char_limit:
+            if name == "":
+                print(f"You'll be called {default_player_name}\n")
+                return default_player_name
+            elif len(name) > char_limit:
                 print(f"Only the first {char_limit} characters of your name will be stored.")
 
                 while True:
                     option = input(f"Is {name[:10]} okay? (yes, no): ").lower().strip()
 
                     if option in ["yes", "y"]:
-                        print(f"Great! You'll be called {name[:10]}.")
+                        print(f"Great! You'll be called {name[:10]}.\n")
                         return name
                     elif option in ["no", "n"]:
                         break
@@ -119,10 +122,8 @@ class GameManager:
                         print("Option invalid or unavailable...\n")
                         continue
             else:
-                break
-
-        print(f"Great! You'll be called {name[:10]}.")
-        return name[:10]
+                print(f"Great! You'll be called {name[:10]}.\n")
+                return name[:10]
 
     # Defines the logic for Player Vs Computer
     def PlayPVC(self):
