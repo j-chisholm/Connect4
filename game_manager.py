@@ -35,7 +35,6 @@ class GameManager:
     def SetPlayersInfo(self, game_mode):  # 1. Player vs Computer, 2. Player vs Player, 3. Computer vs Computer
         # Player chooses to be Player 1
         if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
-            print("You are Player 1!")
             self.player1.SetAsHuman()
             self.player1.SetPlayerName(self.ChoosePlayerName())
             self.player1.SetPlayerToken(self.ChoosePlayerToken())
@@ -49,7 +48,6 @@ class GameManager:
                     self.player2.SetPlayerToken("X")
         else:
             # Player chooses to be player 2
-            print("You are Player 2!")
             self.player2.SetAsHuman()
             self.player2.SetPlayerName(self.ChoosePlayerName())
             self.player2.SetPlayerToken(self.ChoosePlayerToken())
@@ -78,19 +76,26 @@ class GameManager:
             else:
                 break
 
+        print(f"You are Player {number}!")
         return int(number)
 
     # Allow the player to choose their token style (X or O)
     def ChoosePlayerToken(self):
         while True:
-            token = input("Choose your token (X, O): ").strip().upper()
+            print("Choose your token (X, O)")
+            print("Pressing enter without a response will randomly assign a token: ")
+            token = input("Enter X or O: ").strip().upper()
 
-            if token not in ["O", "X"] or token == "":
+            if token == "":
+                token = random.choice(["X", "O"])
+                break
+            if token not in ["X", "O"]:
                 print("Invalid entry, please try again...")
                 continue
             else:
                 break
 
+        print(f"Your token is {token}!")
         return token
 
     # Gets the player's name to personalize their experience
