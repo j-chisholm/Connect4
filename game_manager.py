@@ -35,7 +35,7 @@ class GameManager:
     def SetPlayersInfo(self, game_mode):  # 1. Player vs Computer, 2. Player vs Player, 3. Computer vs Computer
         # Player chooses to be Player 1
         if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
-            print("Great! You'll be Player 1!")
+            print("You are Player 1!")
             self.player1.SetAsHuman()
             self.player1.SetPlayerName(self.ChoosePlayerName())
             self.player1.SetPlayerToken(self.ChoosePlayerToken())
@@ -49,7 +49,7 @@ class GameManager:
                     self.player2.SetPlayerToken("X")
         else:
             # Player chooses to be player 2
-            print("Great! You'll be Player 2!")
+            print("You are Player 2!")
             self.player2.SetAsHuman()
             self.player2.SetPlayerName(self.ChoosePlayerName())
             self.player2.SetPlayerToken(self.ChoosePlayerToken())
@@ -66,13 +66,19 @@ class GameManager:
     def ChoosePlayerNumber(self):
         while True:
             print("Are you Player 1 or Player 2? (Player 1 has the first turn)")
+            print("Pressing enter without a response will randomly assign a Player ID.")
             number = input(f"Enter 1 or 2:  ").strip()
 
-            if number not in ["1", "2"] or number == "":
+            if number == "":
+                number = random.randint(1, 2)
+                break
+            elif number not in ["1", "2"]:
                 print("Invalid entry, please try again...")
                 continue
             else:
-                return int(number)
+                break
+
+        return int(number)
 
     # Allow the player to choose their token style (X or O)
     def ChoosePlayerToken(self):
