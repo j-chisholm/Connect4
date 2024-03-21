@@ -143,6 +143,10 @@ def NumAdjacentTokens(player_token, start_row, start_col, row_increment, col_inc
             row_index += row_increment
             col_index += col_increment
 
+            # Custom bounds checking to prevent the list from "wrapping" around to the other end
+            if row_index < 0 or col_index < 0:
+                raise IndexError
+
             # Increase the number of consecutive tokens found, otherwise return the number of tokens
             if game_board[row_index][col_index] == player_token:
                 count += 1
