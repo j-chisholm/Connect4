@@ -102,11 +102,16 @@ class GameManager:
     def ChoosePlayerName(self, default_player_name):
         while True:
             char_limit = 10
-            name = input(f"What would you like to be called? ({char_limit} character limit): ")
+            print(f"What would you like to be called?")
+            print("Pressing enter without a response will assign your Player ID as your name: ")
+            name = input(f"Choose your name ({char_limit} character limit): ")
 
             if name == "":
                 print(f"You'll be called {default_player_name}\n")
                 return default_player_name
+            elif name.lower() == "computer":
+                print(f"To prevent confusion, the name \"{name}\" is not available to Players.")
+                continue
             elif len(name) > char_limit:
                 print(f"Only the first {char_limit} characters of your name will be stored.")
 
@@ -189,7 +194,7 @@ class GameManager:
                 self.board.DisplayBoard()
                 return False
             elif user_input in no:
-                print("Exiting...")
+                print("Exiting to Main Menu...\n")
                 return True
             elif i > 0:
                 print(f"Not a valid input. The game will exit after {i} more invalid inputs...\n")
