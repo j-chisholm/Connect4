@@ -26,6 +26,7 @@ class Connect4UI:
     def InitWindow(self):
         window_size = (self.win_width, self.win_height)
         self.window = pygame.display.set_mode(window_size)
+        pygame.display.set_caption("Connect 4")
 
     # Initialize board UI
     def InitBoard(self):
@@ -36,7 +37,7 @@ class Connect4UI:
 
     # Draws the board UI on the game window
     def DrawBoardUI(self):
-        # Draw the blue background
+        # Fill the background with blue
         self.window.fill(self.color_blue)
 
         # Draw the circles
@@ -45,7 +46,9 @@ class Connect4UI:
                 cell_height = row * self.cell_size
                 cell_width = col * self.cell_size
 
-                circ_radius = (self.cell_size / 2) - 5  # Radius is half width of the rectangle, 5 is arbitrary
+                # Radius is half the width of the cell's size (square around the circle)
+                # Subtract an arbitrary number which will represent the width of the boarder between cells
+                circ_radius = (self.cell_size / 2) - 3
                 circ_center = (int(cell_height + self.cell_size / 2), int(cell_width + self.cell_size/2))
                 pygame.draw.circle(self.window, self.color_zero_alpha, circ_center, circ_radius)
 
