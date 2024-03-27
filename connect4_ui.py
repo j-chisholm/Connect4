@@ -1,5 +1,6 @@
 # UI Class
 # This class handles displaying the interface which the user will use to interact with the Connect 4 game
+import math
 
 import pygame
 import sys
@@ -48,11 +49,22 @@ class Connect4UI:
 
                 # Radius is half the width of the cell's size (square around the circle)
                 # Subtract an arbitrary number which will represent the width of the boarder between cells
-                circ_radius = (self.cell_size / 2) - 3
-                circ_center = (int(cell_height + self.cell_size / 2), int(cell_width + self.cell_size/2))
+                circ_radius = (self.cell_size / 2) - 4
+                circ_center = (int(cell_height + self.cell_size/2), int(cell_width + self.cell_size/2))
                 pygame.draw.circle(self.window, self.color_zero_alpha, circ_center, circ_radius)
 
         pygame.display.update()  # Pygame requires this function call after any display changes
+
+    # Converts the horizontal position of the mouse to a value between 0 and the total number of columns
+    def ConvertMousePos(self, mouse_xpos):
+        # Convert the horizontal value to an equivalent value between 0 and 6 by dividing by the cell size
+        # Math.floor to round the number down and force it to an int at the same time
+        return math.floor(mouse_xpos/ui.cell_size)
+
+    # Handles populating the game board with the appropriately colored token
+    def DropToken(self, mouse_position, color):
+        pass
+
 
 ui = Connect4UI(6, 7)
 ui.InitBoard()
@@ -63,3 +75,6 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
+            player_choice = ui.ConvertMousePos(event.pos[0])
