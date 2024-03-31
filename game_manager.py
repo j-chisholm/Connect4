@@ -159,12 +159,11 @@ class GameManager:
                         # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1
                         self.board.UpdateBoard(player_choice, player_token)
+                        self.board.DisplayBoard()
+                        self.ui.DrawBoardUI(self.board.GetGameBoard())
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
-                            self.board.DisplayBoard()
-                            self.ui.DrawBoardUI(self.board.GetGameBoard())
-
                             print(f"\n{self.current_player.GetPlayerName()} wins!")
                             self.is_game_over = self.PlayAgain()
                             continue
