@@ -5,8 +5,11 @@
 
 import time
 import random
+import pygame
+import sys
 from board import Board
 from player import Player
+from connect4_ui import Connect4UI
 
 
 class GameManager:
@@ -19,10 +22,14 @@ class GameManager:
         return cls.instance
 
     def __init__(self):
-        self.board = Board(6, 7)
+        self.rows = 6
+        self.cols = 7
 
-        self.player1 = Player("Player 1", 1, None)
-        self.player2 = Player("Player 2", 2, None)
+        self.ui = Connect4UI(self.rows, self.cols)
+        self.board = Board(self.rows, self.cols)
+
+        self.player1 = Player("Player 1", 1, "X")
+        self.player2 = Player("Player 2", 2, "O")
 
         self.current_player = self.player1
 
@@ -134,50 +141,62 @@ class GameManager:
     def PlayGame(self):
         self.board.ResetBoard()
         self.board.DisplayBoard()
+        self.ui.InitBoard()
+        self.ui.InitWindow()
+        self.ui.DrawBoardUI(self.board.GetGameBoard())
+
+        self.player1.SetAsHuman()
 
         while not self.is_game_over:
-
             player_token = self.current_player.GetPlayerToken()
 
-            # If current_player is controlled by a human, prompt the player
+            # current_player is controlled by a person
             if self.current_player.isHuman:
-                # Continue to prompt user until they provide a valid move
-                while True:
-                    player_choice = self.GetPlayerChoice(self.current_player)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        sys.exit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
+                        player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1
+                        self.board.UpdateBoard(player_choice, player_token)
 
-                    if not self.IsChoiceValid(player_choice):
-                        # Pause execution to allow player time to read on screen instructions
-                        time.sleep(1.5)
-                        self.board.DisplayBoard()
+                        # Check if player's move resulted in 4 in a row
+                        if self.board.CheckFourInARow(player_token, player_choice):
+                            self.board.DisplayBoard()
+                            self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-                    # Player's move is valid and can be converted to INT
-                    else:
-                        player_choice = int(player_choice)
-                        break
+                            print(f"\n{self.current_player.GetPlayerName()} wins!")
+                            self.is_game_over = self.PlayAgain()
+                            continue
+
+                        # Change the current player
+                        self.SwapTurn()
 
             # current_player is controlled by the computer
             else:
                 print(f"\n{self.current_player.GetPlayerName()}'s turn...")
+                time.sleep(0.5)
                 player_choice = self.RandomMove()
-                time.sleep(1)
-
-            self.board.UpdateBoard(player_choice, player_token)
-
-            # Check if player's move resulted in 4 in a row
-            if self.board.CheckFourInARow(player_token, player_choice):
+                self.board.UpdateBoard(player_choice, player_token)
                 self.board.DisplayBoard()
-                print(f"\n{self.current_player.GetPlayerName()} wins!")
-                self.is_game_over = self.PlayAgain()
-                continue
+                self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-            self.board.DisplayBoard()
+                # Check if computer's move resulted in 4 in a row
+                if self.board.CheckFourInARow(player_token, player_choice):
+                    print(f"\n{self.current_player.GetPlayerName()} wins!")
+                    self.is_game_over = self.PlayAgain()
+                    continue
+
+                # Change the current player
+                self.SwapTurn()
+
+            self.ui.DrawBoardUI(self.board.GetGameBoard())
 
             # End the game if the board is full
             if self.board.IsBoardFull():
                 print('DRAW!')
 
-            # Change the current player
-            self.SwapTurn()
+        pygame.quit()
 
     # Allows the player to decide if they would like to play again or quit
     def PlayAgain(self):

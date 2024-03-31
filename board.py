@@ -148,3 +148,7 @@ class Board:
     # Returns the board size as a list [rows, columns]
     def GetBoardSize(self):
         return self.num_rows, self.num_cols
+
+    # Returns the game board
+    def GetGameBoard(self):
+        return self.game_board

@@ -85,10 +85,10 @@ def main():
             Rules()
             continue  # Return to the top of the while loop to display options again
         elif option == 2:  # Select a game mode
-            mode = GameModeSelector()  # 1. Vs Computer
+            mode = 1  # GameModeSelector()  # 1. Vs Computer
 
             if mode == 1:  # Player vs computer
-                gm.SetPlayersInfo(1)
+                # gm.SetPlayersInfo(1)
                 gm.PlayGame()
 
         elif option == 3:
