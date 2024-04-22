@@ -140,12 +140,13 @@ class GameManager:
     # Defines the logic for Player Vs Computer
     def PlayGame(self):
         self.board.ResetBoard()
-        self.board.DisplayBoard()
         self.ui.InitBoard()
         self.ui.InitWindow()
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         self.player1.SetAsHuman()
+
+        prev_hover_col = 1
 
         while not self.is_game_over:
             player_token = self.current_player.GetPlayerToken()
@@ -155,11 +156,23 @@ class GameManager:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         sys.exit()
+
+                    #  Track the player's mouse to display the column they are hovering over
+                    if event.type == pygame.MOUSEMOTION:
+                        # Draw the player's token in the current column they are hovering
+                        hovering_col = self.ui.ConvertMousePos((event.pos[0])) + 1
+                        self.board.TempUpdateBoard(hovering_col, player_token)
+                        self.ui.DrawBoardUI(self.board.GetGameBoard())
+
+                        # Remove player token from the previous column
+                        if hovering_col != prev_hover_col:
+                            self.board.UndoTemporaryBoardUpdate(prev_hover_col)
+                            prev_hover_col = hovering_col
+
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1
                         self.board.UpdateBoard(player_choice, player_token)
-                        self.board.DisplayBoard()
                         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
                         # Check if player's move resulted in 4 in a row
@@ -177,7 +190,6 @@ class GameManager:
                 time.sleep(0.5)
                 player_choice = self.RandomMove()
                 self.board.UpdateBoard(player_choice, player_token)
-                self.board.DisplayBoard()
                 self.ui.DrawBoardUI(self.board.GetGameBoard())
 
                 # Check if computer's move resulted in 4 in a row
