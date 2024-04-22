@@ -11,7 +11,6 @@ from board import Board
 from player import Player
 from connect4_ui import Connect4UI
 
-
 class GameManager:
     instance = None
 
@@ -136,6 +135,59 @@ class GameManager:
             else:
                 print(f"Great! You'll be called {name[:10]}.\n")
                 return name[:10]
+
+    # Defines the logic for the Main Menu
+    def DisplayMainMenu(self):
+        self.ui.InitBoard()
+        self.ui.InitWindow()
+        self.ui.DrawMainMenuUI()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the mouse position
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    # Check if a button was clicked
+                    if self.ui.play_btn.collidepoint(mouse_pos):
+                        self.PlayGame()
+                        break
+                    elif self.ui.rules_btn.collidepoint(mouse_pos):
+                        self.DisplayRules()
+                        break
+                    elif self.ui.options_btn.collidepoint(mouse_pos):
+                        self.DisplayOptions()
+                        break
+                    elif self.ui.exit_btn.collidepoint(mouse_pos):
+                        sys.exit()
+
+            pygame.display.update()
+
+    def DisplayRules(self):
+        self.ui.InitBoard()
+        self.ui.InitBoard()
+
+        file = 'v3_rules.txt'
+        with open(file, 'r') as file:
+            rules_text = file.read()
+        file.close()
+
+        self.ui.DrawRulesUI(rules_text)
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.ui.menu_btn.collidepoint(mouse_pos):
+                        self.DisplayMainMenu()
+                        break
+
+    def DisplayOptions(self):
+        pass
 
     # Defines the logic for Player Vs Computer
     def PlayGame(self):
