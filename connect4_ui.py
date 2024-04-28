@@ -16,9 +16,9 @@ class Connect4UI:
         self.win_width = None
         self.win_height = None
 
-        self.color_yellow = (155, 155, 0)
-        self.color_red = (255, 0, 0)
-        self.color_blue = (0, 0, 255)
+        self.color_yellow = (255, 223, 0)
+        self.color_red = (255, 69, 58)
+        self.color_blue = (0, 104, 255)
         self.color_black = (0, 0, 0)
         self.color_white = (255, 255, 255)
         self.color_zero_alpha = (0, 0, 0, 0)
@@ -28,8 +28,7 @@ class Connect4UI:
         self.options_btn = None
         self.exit_btn = None
         self.menu_btn = None
-        self.yes_btn = None
-        self.no_btn = None
+        self.play_again_btn = None
 
         pygame.init()  # Initialize pygame
 
@@ -155,8 +154,8 @@ class Connect4UI:
 
         # Button horizontal position
         space_btwn_btns = 50
-        yes_btn_x = (self.win_width // 2) - btn_width - space_btwn_btns
-        no_btn_x = (self.win_width // 2) + space_btwn_btns
+        play_again_btn_x = (self.win_width // 2) - btn_width - space_btwn_btns
+        menu_btn_x = (self.win_width // 2) + space_btwn_btns
 
         # Define vertical position for the "Game Over" text
         title_y = btn_y - (2 * btn_height)
@@ -174,8 +173,8 @@ class Connect4UI:
         self.window.blit(game_over_text, game_over_rect)
 
         # Draw the buttons and get their rects
-        self.yes_btn = self.DrawButton(button_font, "Yes", yes_btn_x, btn_y, btn_width, btn_height)
-        self.no_btn = self.DrawButton(button_font, "No", no_btn_x, btn_y, btn_width, btn_height)
+        self.play_again_btn = self.DrawButton(button_font, "Play Again", play_again_btn_x, btn_y, btn_width, btn_height)
+        self.menu_btn = self.DrawButton(button_font, "Main Menu", menu_btn_x, btn_y, btn_width, btn_height)
 
         # Update the display to show the changes
         pygame.display.update()

@@ -271,10 +271,10 @@ class GameManager:
                     mouse_pos = pygame.mouse.get_pos()
 
                     # Check if a button was clicked
-                    if self.ui.yes_btn.collidepoint(mouse_pos):
+                    if self.ui.play_again_btn.collidepoint(mouse_pos):
                         self.PlayGame()
                         return True
-                    elif self.ui.no_btn.collidepoint(mouse_pos):
+                    elif self.ui.menu_btn.collidepoint(mouse_pos):
                         self.DisplayMainMenu()
 
             pygame.display.update()
