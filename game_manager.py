@@ -28,7 +28,7 @@ class GameManager:
         self.board = Board(self.rows, self.cols)
 
         self.player1 = Player("Player 1", 1, "X")
-        self.player2 = Player("Player 2", 2, "O")
+        self.player2 = Player("Opponent", 2, "O")
 
         self.current_player = self.player1
 
@@ -47,7 +47,7 @@ class GameManager:
 
             # Player vs Computer. Set Player 2 to Computer
             if game_mode == 1:
-                self.player2.SetPlayerName("Computer")
+                self.player2.SetPlayerName("Opponent")
                 if self.player1.GetPlayerToken() == "X":
                     self.player2.SetPlayerToken("O")
                 else:
@@ -60,7 +60,7 @@ class GameManager:
 
             # Player vs Computer. Set player 1 to Computer
             if game_mode == 1:
-                self.player1.SetPlayerName("Computer")
+                self.player1.SetPlayerName("Opponent")
                 if self.player2.GetPlayerToken() == "X":
                     self.player1.SetPlayerToken("O")
                 else:
@@ -138,7 +138,6 @@ class GameManager:
 
     # Defines the logic for the Main Menu
     def DisplayMainMenu(self):
-        self.ui.InitBoard()
         self.ui.InitWindow()
         self.ui.DrawMainMenuUI()
 
@@ -146,7 +145,7 @@ class GameManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Get the mouse position
                     mouse_pos = pygame.mouse.get_pos()
 
@@ -166,9 +165,6 @@ class GameManager:
             pygame.display.update()
 
     def DisplayRules(self):
-        self.ui.InitBoard()
-        self.ui.InitBoard()
-
         file = 'v3_rules.txt'
         with open(file, 'r') as file:
             rules_text = file.read()
@@ -180,19 +176,55 @@ class GameManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if self.ui.menu_btn.collidepoint(mouse_pos):
+                    if self.ui.back_btn.collidepoint(mouse_pos):
                         self.DisplayMainMenu()
                         break
 
     def DisplayOptions(self):
-        pass
+        self.ui.DrawOptionsUI()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.ui.player_btn.collidepoint(mouse_pos):
+                        pass
+                    elif self.ui.color_btn.collidepoint(mouse_pos):
+                        pass
+                    elif self.ui.back_btn.collidepoint(mouse_pos):
+                        self.DisplayMainMenu()
+                        break
+
+                    # Handles checking in the input box is clicked
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        if self.ui.name_input_box.collidepoint(pygame.mouse.get_pos()):
+                            self.ui.input_active = True
+                        else:
+                            self.ui.input_active = False
+
+                # Handle getting keystrokes for the users name
+                elif self.ui.input_active and event.type == pygame.KEYDOWN:
+                    # Handle backspace
+                    if event.key == pygame.K_BACKSPACE:
+                        self.ui.name_input_text = self.ui.name_input_text[:-1]
+                    # Handle return/enter
+                    elif event.key == pygame.K_RETURN:
+                        pass
+                    # Handle other characters
+                    else:
+                        self.ui.name_input_text += event.unicode
+                        print(event.unicode)
+                        print(self.ui.name_input_text)
+
+            self.ui.DrawOptionsUI()
 
     # Defines the logic for Player Vs Computer
     def PlayGame(self):
         self.board.ResetBoard()
-        self.ui.InitBoard()
         self.ui.InitWindow()
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
@@ -221,7 +253,7 @@ class GameManager:
                             self.board.UndoTemporaryBoardUpdate(prev_hover_col)
                             prev_hover_col = hovering_col
 
-                    if event.type == pygame.MOUSEBUTTONDOWN:
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
                         # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1
                         self.board.UpdateBoard(player_choice, player_token)
