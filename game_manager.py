@@ -229,8 +229,7 @@ class GameManager:
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
-                            print(f"\n{self.current_player.GetPlayerName()} wins!")
-                            self.is_game_over = self.PlayAgain()
+                            self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                             continue
 
                         # Change the current player
@@ -238,7 +237,6 @@ class GameManager:
 
             # current_player is controlled by the computer
             else:
-                print(f"\n{self.current_player.GetPlayerName()}'s turn...")
                 time.sleep(0.5)
                 player_choice = self.RandomMove()
                 self.board.UpdateBoard(player_choice, player_token)
@@ -246,8 +244,7 @@ class GameManager:
 
                 # Check if computer's move resulted in 4 in a row
                 if self.board.CheckFourInARow(player_token, player_choice):
-                    print(f"\n{self.current_player.GetPlayerName()} wins!")
-                    self.is_game_over = self.PlayAgain()
+                    self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                     continue
 
                 # Change the current player
@@ -257,64 +254,30 @@ class GameManager:
 
             # End the game if the board is full
             if self.board.IsBoardFull():
-                print('DRAW!')
+                self.is_game_over = self.PlayAgain(None)
 
         pygame.quit()
 
     # Allows the player to decide if they would like to play again or quit
-    def PlayAgain(self):
-        yes = ['y', 'yes']
-        no = ['n', 'no']
+    def PlayAgain(self, winner):
+        self.ui.DrawPlayAgainUI(winner)
 
-        # Gives the player 3 attempts to enter a valid input
-        for i in range(2, -1, -1):
-            user_input = input("Would you like to play again? [yes, no]: ").lower()
-            if user_input in yes:
-                print("Resetting the game...")
-                self.board.ResetBoard()  # Reset the game board
-                time.sleep(2)
-                self.board.DisplayBoard()
-                return False
-            elif user_input in no:
-                print("Exiting to Main Menu...\n")
-                return True
-            elif i > 0:
-                print(f"Not a valid input. The game will exit after {i} more invalid inputs...\n")
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the mouse position
+                    mouse_pos = pygame.mouse.get_pos()
 
-        print("No more attempts remaining, game will now end...")
-        return True
+                    # Check if a button was clicked
+                    if self.ui.yes_btn.collidepoint(mouse_pos):
+                        self.PlayGame()
+                        return True
+                    elif self.ui.no_btn.collidepoint(mouse_pos):
+                        self.DisplayMainMenu()
 
-    # Prompts the player for an input and stores it
-    def GetPlayerChoice(self, current_player):
-        # Print instructions to the player
-        print(f"\n{current_player.GetPlayerName()}'s turn...")
-        player_choice = input("Enter a column (1-7) to to drop your token: ")
-
-        return player_choice
-
-    # Validate the user's input against the current board state
-    def IsChoiceValid(self, player_choice):
-        num_rows, num_cols = self.board.GetBoardSize()
-        tokens_per_col = self.board.GetTokensPerColumn()
-
-        if player_choice == '':
-            print("\nNo value entered.\nPlease try again!")
-            return False
-        try:
-            player_choice = int(player_choice)
-            if player_choice not in range(1, num_cols + 1):
-                print("\nSorry, that choice is not in the range 1-7.\nPlease try again!")
-            # check if the column is full
-            elif tokens_per_col[player_choice] >= num_rows:
-                print("\nThat column is full, please try again!")
-                return False
-            else:
-                return True
-        except ValueError:
-            print("\nThat is not a number, please try again!")
-            return False
-        except OverflowError:
-            print("That number is too large, please try again!")
+            pygame.display.update()
 
     # Generates a random move
     def RandomMove(self):

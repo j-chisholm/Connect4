@@ -28,6 +28,8 @@ class Connect4UI:
         self.options_btn = None
         self.exit_btn = None
         self.menu_btn = None
+        self.yes_btn = None
+        self.no_btn = None
 
         pygame.init()  # Initialize pygame
 
@@ -48,6 +50,7 @@ class Connect4UI:
     def DrawButton(self, font, text, x, y, width, height):
         button_rect = pygame.Rect(x, y, width, height)
         pygame.draw.rect(self.window, self.color_black, button_rect)
+        pygame.draw.rect(self.window, self.color_white, button_rect, width=2)
         text_surface = font.render(text, True, self.color_white)
         text_rect = text_surface.get_rect(center=button_rect.center)
         self.window.blit(text_surface, text_rect)
@@ -137,6 +140,45 @@ class Connect4UI:
                     pygame.draw.circle(self.window, self.color_zero_alpha, circ_center, circ_radius)
 
         pygame.display.update()  # Pygame requires this function call after any display changes
+
+    def DrawPlayAgainUI(self, winner):
+        # Define button font
+        button_font = pygame.font.Font(None, 24)
+
+        # Define font for "Game Over" text
+        game_over_font = pygame.font.Font(None, 60)
+
+        # General button properties
+        btn_width = 200
+        btn_height = 50
+        btn_y = (self.win_height - btn_height) // 2
+
+        # Button horizontal position
+        space_btwn_btns = 50
+        yes_btn_x = (self.win_width // 2) - btn_width - space_btwn_btns
+        no_btn_x = (self.win_width // 2) + space_btwn_btns
+
+        # Define vertical position for the "Game Over" text
+        title_y = btn_y - (2 * btn_height)
+
+        # Render "Game Over" text
+        if winner is not None:
+            end_game_text = f"{winner} wins!"
+        else:
+            end_game_text = "Draw!"
+
+        game_over_text = game_over_font.render(end_game_text, True, self.color_white)
+        game_over_rect = game_over_text.get_rect(center=(self.win_width // 2, title_y))
+
+        # Draw "Game Over" text to the window
+        self.window.blit(game_over_text, game_over_rect)
+
+        # Draw the buttons and get their rects
+        self.yes_btn = self.DrawButton(button_font, "Yes", yes_btn_x, btn_y, btn_width, btn_height)
+        self.no_btn = self.DrawButton(button_font, "No", no_btn_x, btn_y, btn_width, btn_height)
+
+        # Update the display to show the changes
+        pygame.display.update()
 
     # Converts the horizontal position of the mouse to a value between 0 and the total number of columns
     def ConvertMousePos(self, mouse_xpos):
