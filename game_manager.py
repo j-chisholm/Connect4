@@ -192,9 +192,17 @@ class GameManager:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if self.ui.player_btn.collidepoint(mouse_pos):
-                        pass
+                        if self.ui.player_toggle == "Player 1":
+                            self.ui.player_toggle = "Player 2"
+                        else:
+                            self.ui.player_toggle = "Player 1"
                     elif self.ui.color_btn.collidepoint(mouse_pos):
-                        pass
+                        if self.ui.player_color == "Red":
+                            self.ui.player_color = "Yellow"
+                            self.ui.color_toggle = self.ui.color_yellow
+                        else:
+                            self.ui.player_color = "Red"
+                            self.ui.color_toggle = self.ui.color_red
                     elif self.ui.back_btn.collidepoint(mouse_pos):
                         self.DisplayMainMenu()
                         break
@@ -217,8 +225,6 @@ class GameManager:
                     # Handle other characters
                     else:
                         self.ui.name_input_text += event.unicode
-                        print(event.unicode)
-                        print(self.ui.name_input_text)
 
             self.ui.DrawOptionsUI()
 

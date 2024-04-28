@@ -40,6 +40,10 @@ class Connect4UI:
         self.show_cursor = True
         self.last_cursor_toggle = pygame.time.get_ticks()
 
+        self.player_toggle = "Player 1"
+        self.player_color = "Red"
+        self.color_toggle = self.color_red
+
         pygame.init()  # Initialize pygame
 
     # Initializes the game window
@@ -177,7 +181,7 @@ class Connect4UI:
         # Player choice button
         player_btn_y = initial_y
         player_btn_x = (self.win_width - btn_width) // 2
-        self.player_btn = self.DrawButton(font, "Player 1", player_btn_x, player_btn_y, btn_width, btn_height)
+        self.player_btn = self.DrawButton(font, self.player_toggle, player_btn_x, player_btn_y, btn_width, btn_height)
 
         # Adjust initial_y for the next elements
         initial_y += btn_height + space_btwn_elements
@@ -185,7 +189,8 @@ class Connect4UI:
         # Color choice button
         color_btn_y = initial_y
         color_btn_x = (self.win_width - btn_width) // 2
-        self.color_btn = self.DrawButton(font, "Red", color_btn_x, color_btn_y, btn_width, btn_height, self.color_red)
+        self.color_btn = self.DrawButton(font, self.player_color, color_btn_x, color_btn_y, btn_width, btn_height,
+                                         self.color_toggle)
 
         # Draw back button in the lower right corner
         back_btn_y = self.win_height - btn_height - 20  # 20 pixels padding from bottom
