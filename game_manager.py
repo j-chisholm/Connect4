@@ -27,114 +27,16 @@ class GameManager:
         self.ui = Connect4UI(self.rows, self.cols)
         self.board = Board(self.rows, self.cols)
 
-        self.player1 = Player("Player 1", 1, "X")
-        self.player2 = Player("Opponent", 2, "O")
+        self.player1 = Player("Player", 1, "X")
+        self.player2 = Player("Computer", 2, "O")
+        self.player = self.player1
+        self.computer = self.player2
 
         self.current_player = self.player1
 
-        self.game_mode = None
         self.is_game_over = False
-
-    # Allows the player to customize their information. Takes in an integer 'game_mode'
-    # as a parameter. The method uses the game_mode type to determine how to assign
-    # the second player
-    def SetPlayersInfo(self, game_mode):  # 1. Player vs Computer, 2. Player vs Player, 3. Computer vs Computer
-        # Player chooses to be Player 1
-        if self.ChoosePlayerNumber() == self.player1.GetPlayerNumber():
-            self.player1.SetAsHuman()
-            self.player1.SetPlayerName(self.ChoosePlayerName(self.player1.GetPlayerName()))
-            self.player1.SetPlayerToken(self.ChoosePlayerToken())
-
-            # Player vs Computer. Set Player 2 to Computer
-            if game_mode == 1:
-                self.player2.SetPlayerName("Opponent")
-                if self.player1.GetPlayerToken() == "X":
-                    self.player2.SetPlayerToken("O")
-                else:
-                    self.player2.SetPlayerToken("X")
-        else:
-            # Player chooses to be player 2
-            self.player2.SetAsHuman()
-            self.player2.SetPlayerName(self.ChoosePlayerName(self.player2.GetPlayerName()))
-            self.player2.SetPlayerToken(self.ChoosePlayerToken())
-
-            # Player vs Computer. Set player 1 to Computer
-            if game_mode == 1:
-                self.player1.SetPlayerName("Opponent")
-                if self.player2.GetPlayerToken() == "X":
-                    self.player1.SetPlayerToken("O")
-                else:
-                    self.player1.SetPlayerToken("X")
-
-    # Allows the player to choose whether they take the first or second move
-    def ChoosePlayerNumber(self):
-        while True:
-            print("Are you Player 1 or Player 2? (Player 1 has the first turn)")
-            print("Pressing enter without a response will randomly assign a Player ID.")
-            number = input(f"Enter 1 or 2:  ").strip()
-
-            if number == "":
-                number = random.randint(1, 2)
-                break
-            elif number not in ["1", "2"]:
-                print("Invalid entry, please try again...")
-                continue
-            else:
-                break
-
-        print(f"You are Player {number}!\n")
-        return int(number)
-
-    # Allow the player to choose their token style (X or O)
-    def ChoosePlayerToken(self):
-        while True:
-            print("Choose your token (X, O)")
-            print("Pressing enter without a response will randomly assign a token: ")
-            token = input("Enter X or O: ").strip().upper()
-
-            if token == "":
-                token = random.choice(["X", "O"])
-                break
-            if token not in ["X", "O"]:
-                print("Invalid entry, please try again...")
-                continue
-            else:
-                break
-
-        print(f"Your token is {token}!\n")
-        return token
-
-    # Gets the player's name to personalize their experience
-    def ChoosePlayerName(self, default_player_name):
-        while True:
-            char_limit = 10
-            print(f"What would you like to be called?")
-            print("Pressing enter without a response will assign your Player ID as your name: ")
-            name = input(f"Choose your name ({char_limit} character limit): ")
-
-            if name == "":
-                print(f"You'll be called {default_player_name}\n")
-                return default_player_name
-            elif name.lower() == "computer":
-                print(f"To prevent confusion, the name \"{name}\" is not available to Players.")
-                continue
-            elif len(name) > char_limit:
-                print(f"Only the first {char_limit} characters of your name will be stored.")
-
-                while True:
-                    option = input(f"Is {name[:10]} okay? (yes, no): ").lower().strip()
-
-                    if option in ["yes", "y"]:
-                        print(f"Great! You'll be called {name[:10]}.\n")
-                        return name
-                    elif option in ["no", "n"]:
-                        break
-                    else:
-                        print("Option invalid or unavailable...\n")
-                        continue
-            else:
-                print(f"Great! You'll be called {name[:10]}.\n")
-                return name[:10]
+        self.is_random_first_turn = True
+        self.player_has_first_turn = True
 
     # Defines the logic for the Main Menu
     def DisplayMainMenu(self):
@@ -191,29 +93,43 @@ class GameManager:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if self.ui.player_btn.collidepoint(mouse_pos):
-                        if self.ui.player_toggle == "Player 1":
-                            self.ui.player_toggle = "Player 2"
+                    # Toggle player token color
+                    if self.ui.token_btn.collidepoint(mouse_pos):
+                        if self.ui.token_btn_label == "Token: Red":
+                            self.computer.SetPlayerToken("X")
+                            self.player.SetPlayerToken("O")
+
+                            self.ui.token_btn_label = "Token: Yellow"
+                            self.ui.token_btn_color = self.ui.color_yellow
                         else:
-                            self.ui.player_toggle = "Player 1"
-                    elif self.ui.color_btn.collidepoint(mouse_pos):
-                        if self.ui.player_color == "Red":
-                            self.ui.player_color = "Yellow"
-                            self.ui.color_toggle = self.ui.color_yellow
+                            self.computer.SetPlayerToken("O")
+                            self.player.SetPlayerToken("X")
+
+                            self.ui.token_btn_label = "Token: Red"
+                            self.ui.token_btn_color = self.ui.color_red
+                    # Toggle first turn
+                    elif self.ui.first_move_btn.collidepoint(mouse_pos):
+                        if self.ui.first_move_label == "Player has first turn":
+                            self.ui.first_move_label = "Computer has first turn"
+                            self.player_has_first_turn = False
+                        elif self.ui.first_move_label == "Computer has first turn":
+                            self.ui.first_move_label = "Random first turn"
+                            self.is_random_first_turn = True
                         else:
-                            self.ui.player_color = "Red"
-                            self.ui.color_toggle = self.ui.color_red
+                            self.ui.first_move_label = "Player has first turn"
+                            self.player_has_first_turn = True
+                            self.is_random_first_turn = False
+                    # Handles the back button
                     elif self.ui.back_btn.collidepoint(mouse_pos):
                         self.DisplayMainMenu()
                         break
-
+                    ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
                     # Handles checking in the input box is clicked
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.ui.name_input_box.collidepoint(pygame.mouse.get_pos()):
                             self.ui.input_active = True
                         else:
                             self.ui.input_active = False
-
                 # Handle getting keystrokes for the users name
                 elif self.ui.input_active and event.type == pygame.KEYDOWN:
                     # Handle backspace
@@ -224,7 +140,7 @@ class GameManager:
                         pass
                     # Handle other characters
                     else:
-                        self.ui.name_input_text += event.unicode
+                        self.ui.name_input_text += event.unicode '''
 
             self.ui.DrawOptionsUI()
 
@@ -234,9 +150,18 @@ class GameManager:
         self.ui.InitWindow()
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-        self.player1.SetAsHuman()
+        self.player.SetAsHuman()
+        self.computer.SetAsComputer()
 
         prev_hover_col = 1
+
+        if self.is_random_first_turn:
+            self.RandomizeFirstTurn()
+
+        if self.player_has_first_turn:
+            self.current_player = self.player
+        else:
+            self.current_player = self.computer
 
         while not self.is_game_over:
             player_token = self.current_player.GetPlayerToken()
@@ -335,3 +260,10 @@ class GameManager:
             self.current_player = self.player2
         else:
             self.current_player = self.player1
+
+    # Randomizes who has the first turn in the next game
+    def RandomizeFirstTurn(self):
+        if random.randint(1, 2) == 1:
+            self.player_has_first_turn = True
+        else:
+            self.player_has_first_turn = False

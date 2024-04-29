@@ -3,8 +3,7 @@
 import math
 
 import pygame
-import sys
-
+import time
 
 class Connect4UI:
     def __init__(self, rows, cols):
@@ -31,18 +30,20 @@ class Connect4UI:
         self.menu_btn = None
         self.back_btn = None
         self.play_again_btn = None
-        self.player_btn = None
-        self.color_btn = None
+        self.token_btn = None
+        self.first_move_btn = None
 
+        ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
         self.name_input_box = None
         self.name_input_text = ""
         self.input_active = False
         self.show_cursor = True
-        self.last_cursor_toggle = pygame.time.get_ticks()
+        self.last_cursor_toggle = pygame.time.get_ticks()'''
 
-        self.player_toggle = "Player 1"
-        self.player_color = "Red"
-        self.color_toggle = self.color_red
+        self.token_btn_label = "Token: Red"
+        self.token_btn_color = self.color_red
+        self.first_move_label = "Random first turn"
+        self.first_move_btn_color = self.color_yellow
 
         pygame.init()  # Initialize pygame
 
@@ -53,11 +54,12 @@ class Connect4UI:
         pygame.display.set_caption("Connect 4")
 
     # Draws the button to the window
-    def DrawButton(self, font, text, x, y, width, height, btn_color=(0, 0, 0)):
+    def DrawButton(self, font, text, x, y, width, height, btn_color=(0, 0, 0),
+                   txt_color=(255, 255, 255)):
         button_rect = pygame.Rect(x, y, width, height)
         pygame.draw.rect(self.window, btn_color, button_rect)
-        pygame.draw.rect(self.window, self.color_white, button_rect, width=2)
-        text_surface = font.render(text, True, self.color_white)
+        pygame.draw.rect(self.window, txt_color, button_rect, width=2)
+        text_surface = font.render(text, True, txt_color)
         text_rect = text_surface.get_rect(center=button_rect.center)
         self.window.blit(text_surface, text_rect)
 
@@ -144,6 +146,7 @@ class Connect4UI:
         # Fill the window with the background color
         self.window.fill(self.color_blue)
 
+        ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
         # Draw name label and input box
         name_label = small_font.render("Enter Your Name:", True, self.color_white)
         name_label_rect = name_label.get_rect(center=(self.win_width // 2, initial_y - 30))
@@ -168,29 +171,32 @@ class Connect4UI:
                              (cursor_x, initial_y + input_height - 5), 2)
 
         # Adjust initial_y for the next elements
-        initial_y += input_height + space_btwn_elements
+        initial_y += input_height + space_btwn_elements '''
 
         # Add instruction text above the player button
-        instruction_text = instruction_font.render("Click to toggle between options", True, self.color_white)
+        instruction_text = instruction_font.render("Click to toggle active options", True, self.color_white)
         instruction_text_rect = instruction_text.get_rect(center=(self.win_width // 2, initial_y - 10))
         self.window.blit(instruction_text, instruction_text_rect)
 
-        # Adjust initial_y for the instruction text
-        initial_y += 15
-
-        # Player choice button
-        player_btn_y = initial_y
-        player_btn_x = (self.win_width - btn_width) // 2
-        self.player_btn = self.DrawButton(font, self.player_toggle, player_btn_x, player_btn_y, btn_width, btn_height)
-
         # Adjust initial_y for the next elements
-        initial_y += btn_height + space_btwn_elements
+        initial_y += space_btwn_elements
 
         # Color choice button
-        color_btn_y = initial_y
-        color_btn_x = (self.win_width - btn_width) // 2
-        self.color_btn = self.DrawButton(font, self.player_color, color_btn_x, color_btn_y, btn_width, btn_height,
-                                         self.color_toggle)
+        token_btn_y = initial_y
+        token_btn_x = (self.win_width - btn_width) // 2
+        self.token_btn = self.DrawButton(small_font, self.token_btn_label, token_btn_x, token_btn_y, btn_width,
+                                         btn_height, self.token_btn_color)
+
+        # Add initial_y for the first move button
+        initial_y += btn_height + space_btwn_elements
+
+        # First move button
+        first_move_btn_y = initial_y
+        first_move_btn_x = (self.win_width - btn_width) // 2
+
+        # Create the first move button
+        self.first_move_btn = self.DrawButton(instruction_font, self.first_move_label, first_move_btn_x,
+                                              first_move_btn_y, btn_width, btn_height)
 
         # Draw back button in the lower right corner
         back_btn_y = self.win_height - btn_height - 20  # 20 pixels padding from bottom
@@ -271,6 +277,7 @@ class Connect4UI:
         # Math.floor to round the number down and force it to an int at the same time
         return math.floor(mouse_xpos / self.cell_size)
 
+    # Renders text to the window
     def DrawText(self, text, font, text_color, x_pos, y_pos):
         img = font.render(text, True, text_color)
         self.window.blit(img, (x_pos, y_pos))

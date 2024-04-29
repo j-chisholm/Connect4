@@ -42,3 +42,7 @@ class Player:
     # Designates this object as a player/human
     def SetAsHuman(self):
         self.isHuman = True
+
+    # Designates this object as a computer
+    def SetAsComputer(self):
+        self.isHuman = False
