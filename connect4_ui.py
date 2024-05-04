@@ -1,21 +1,26 @@
 # UI Class
-# This class handles displaying the interface which the user will use to interact with the Connect 4 game
+# This class handles displaying the interface which the user will
+# use to interact with the Connect 4 game
 import math
-
 import pygame
-import time
+
 
 class Connect4UI:
+    # __init_ method called at object instantiation
     def __init__(self, rows, cols):
+        # Set the board size
         self.rows = rows
         self.cols = cols
 
+        # The size (in pixels) of each of the 42 places on the game board
         self.cell_size = 100
 
+        # Default values for the pygame window
         self.window = None
         self.win_width = self.cols * self.cell_size
         self.win_height = self.rows * self.cell_size
 
+        # Define color values
         self.color_yellow = (255, 223, 0)
         self.color_red = (255, 69, 58)
         self.color_blue = (0, 104, 255)
@@ -23,6 +28,7 @@ class Connect4UI:
         self.color_white = (255, 255, 255)
         self.color_zero_alpha = (0, 0, 0, 0)
 
+        # Default each button across all menus
         self.play_btn = None
         self.rules_btn = None
         self.options_btn = None
@@ -34,12 +40,14 @@ class Connect4UI:
         self.first_move_btn = None
 
         ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
+        # Default values for the text box found in the options menu
         self.name_input_box = None
         self.name_input_text = ""
         self.input_active = False
         self.show_cursor = True
         self.last_cursor_toggle = pygame.time.get_ticks()'''
 
+        # Default states for the buttons in the options menu
         self.token_btn_label = "Token: Red"
         self.token_btn_color = self.color_red
         self.first_move_label = "Random first turn"
@@ -49,24 +57,12 @@ class Connect4UI:
 
     # Initializes the game window
     def InitWindow(self):
+        # Set the window size and window caption
         window_size = (self.win_width, self.win_height)
         self.window = pygame.display.set_mode(window_size)
         pygame.display.set_caption("Connect 4")
 
-    # Draws the button to the window
-    def DrawButton(self, font, text, x, y, width, height, btn_color=(0, 0, 0),
-                   txt_color=(255, 255, 255)):
-        button_rect = pygame.Rect(x, y, width, height)
-        pygame.draw.rect(self.window, btn_color, button_rect)
-        pygame.draw.rect(self.window, txt_color, button_rect, width=2)
-        text_surface = font.render(text, True, txt_color)
-        text_rect = text_surface.get_rect(center=button_rect.center)
-        self.window.blit(text_surface, text_rect)
-
-        # Return the button rect after drawing, so it can be used to determine if it was clicked
-        return button_rect
-
-    # Displays the Main Menu
+    # Displays the Main Menu window
     def DrawMainMenuUI(self):
         # Define font
         font = pygame.font.Font(None, 40)
@@ -76,7 +72,7 @@ class Connect4UI:
         btn_height = 50
         btn_x = (self.win_width - btn_width) // 2
 
-        # Button vertical position
+        # Button vertical positions
         space_btwn_btns = 50
         play_btn_y = (self.win_height // 2) - (2 * (btn_height + space_btwn_btns))
         rules_btn_y = (self.win_height // 2) - (btn_height + space_btwn_btns)
@@ -86,17 +82,17 @@ class Connect4UI:
         # Fill the window with blue
         self.window.fill(self.color_blue)
 
-        # Draw the buttons and get their rects
+        # Draw the buttons and store their rects
         self.play_btn = self.DrawButton(font, "Play", btn_x, play_btn_y, btn_width, btn_height)
         self.rules_btn = self.DrawButton(font, "Rules", btn_x, rules_btn_y, btn_width, btn_height)
         self.options_btn = self.DrawButton(font, "Options", btn_x, options_btn_y, btn_width, btn_height)
         self.exit_btn = self.DrawButton(font, "Exit", btn_x, exit_btn_y, btn_width, btn_height)
 
-        pygame.display.update()
+        pygame.display.update()  # update the window with the changes
 
-    # Displays the rules
+    # Displays the rules window
     def DrawRulesUI(self, text):
-        # Define font
+        # Define fonts
         rules_font = pygame.font.Font(None, 24)
         btn_font = pygame.font.Font(None, 40)
 
@@ -114,34 +110,34 @@ class Connect4UI:
         for line in lines:
             txt_img = rules_font.render(line, True, self.color_white)
             self.window.blit(txt_img, (x, y))
+
             # Move the y position down to create space between each line
             y += rules_font.get_height() + 10
 
-        # General button properties
+        # Draw the back button on the window
         self.back_btn = self.DrawButton(btn_font, "Back", self.win_width // 2, 400, 200, 50)
 
-        # Update the display to show the changes
-        pygame.display.update()
+        pygame.display.update()  # update the window with the changes
 
-    # Displays the options
+    # Displays the options window
     def DrawOptionsUI(self):
-        # Define font
-        font = pygame.font.Font(None, 40)
+        # Define fonts
+        large_font = pygame.font.Font(None, 40)  # large font
+        med_font = pygame.font.Font(None, 30)  # medium font
+        small_font = pygame.font.Font(None, 24)  # small font
 
-        # Define smaller font for input boxes, labels, and instructions
-        small_font = pygame.font.Font(None, 30)
-        instruction_font = pygame.font.Font(None, 24)
-
-        # Button and input properties
-        btn_width = 200
-        btn_height = 50
+        ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
+        # Text input box properties
         input_width = 300
         input_height = 40
-        input_x = (self.win_width - input_width) // 2
+        input_x = (self.win_width - input_width) // 2'''
 
-        # Positions for elements
-        space_btwn_elements = 30
-        initial_y = self.win_height // 2 - 2 * (btn_height + space_btwn_elements)
+        # General button properties
+        btn_width = 200
+        btn_height = 50
+        space_btwn_btns = 30
+        btn_x = (self.win_width - btn_width) // 2
+        initial_y = self.win_height // 2 - 2 * (btn_height + space_btwn_btns)
 
         # Fill the window with the background color
         self.window.fill(self.color_blue)
@@ -168,43 +164,30 @@ class Connect4UI:
         if self.input_active and self.show_cursor:
             cursor_x = input_x + small_font.size(self.name_input_text)[0] + 5
             pygame.draw.line(self.window, self.color_black, (cursor_x, initial_y + 5),
-                             (cursor_x, initial_y + input_height - 5), 2)
+                             (cursor_x, initial_y + input_height - 5), 2)'''
 
-        # Adjust initial_y for the next elements
-        initial_y += input_height + space_btwn_elements '''
+        # Button vertical positions
+        instruction_text_y = initial_y - 10
+        token_btn_y = instruction_text_y + space_btwn_btns
+        first_move_btn_y = token_btn_y + btn_height + space_btwn_btns
 
-        # Add instruction text above the player button
-        instruction_text = instruction_font.render("Click to toggle active options", True, self.color_white)
-        instruction_text_rect = instruction_text.get_rect(center=(self.win_width // 2, initial_y - 10))
+        # Add instruction text above the player token button
+        instruction_text = small_font.render("Click to toggle active options", True, self.color_white)
+        instruction_text_rect = instruction_text.get_rect(center=(self.win_width // 2, instruction_text_y))
         self.window.blit(instruction_text, instruction_text_rect)
 
-        # Adjust initial_y for the next elements
-        initial_y += space_btwn_elements
-
-        # Color choice button
-        token_btn_y = initial_y
-        token_btn_x = (self.win_width - btn_width) // 2
-        self.token_btn = self.DrawButton(small_font, self.token_btn_label, token_btn_x, token_btn_y, btn_width,
+        # Draw buttons and store their rects
+        self.token_btn = self.DrawButton(med_font, self.token_btn_label, btn_x, token_btn_y, btn_width,
                                          btn_height, self.token_btn_color)
-
-        # Add initial_y for the first move button
-        initial_y += btn_height + space_btwn_elements
-
-        # First move button
-        first_move_btn_y = initial_y
-        first_move_btn_x = (self.win_width - btn_width) // 2
-
-        # Create the first move button
-        self.first_move_btn = self.DrawButton(instruction_font, self.first_move_label, first_move_btn_x,
+        self.first_move_btn = self.DrawButton(small_font, self.first_move_label, btn_x,
                                               first_move_btn_y, btn_width, btn_height)
 
-        # Draw back button in the lower right corner
-        back_btn_y = self.win_height - btn_height - 20  # 20 pixels padding from bottom
+        # Draw the back button in the lower right corner
         back_btn_x = self.win_width - btn_width - 20  # 20 pixels padding from right
-        self.back_btn = self.DrawButton(font, "Back", back_btn_x, back_btn_y, btn_width, btn_height)
+        back_btn_y = self.win_height - btn_height - 20  # 20 pixels padding from bottom
+        self.back_btn = self.DrawButton(large_font, "Back", back_btn_x, back_btn_y, btn_width, btn_height)
 
-        # Update the display
-        pygame.display.update()
+        pygame.display.update()  # update the window with the changes
 
     # Draws the board UI on the game window
     def DrawBoardUI(self, board):
@@ -217,11 +200,12 @@ class Connect4UI:
                 cell_height = col * self.cell_size
                 cell_width = row * self.cell_size
 
-                # Radius is half the width of the cell's size (square around the circle)
+                # Radius is half the width of the cell's size (cell is the square around the circle)
                 # Subtract an arbitrary number which will represent the width of the boarder between cells
-                circ_radius = (self.cell_size / 2) - 4
+                circ_radius = (self.cell_size / 2) - 4  # 4 pixel width around circles
                 circ_center = (int(cell_height + self.cell_size / 2), int(cell_width + self.cell_size / 2))
 
+                # Draw the appropriately colored circle in the corresponding board space on the window
                 if board[row][col] == "X":
                     pygame.draw.circle(self.window, self.color_red, circ_center, circ_radius)
                 elif board[row][col] == "O":
@@ -229,22 +213,21 @@ class Connect4UI:
                 else:
                     pygame.draw.circle(self.window, self.color_zero_alpha, circ_center, circ_radius)
 
-        pygame.display.update()  # Pygame requires this function call after any display changes
+        pygame.display.update()  # update the window with the changes
 
+    # Provides the player with the option to play again or return to the menu
     def DrawPlayAgainUI(self, winner):
-        # Define button font
+        # Define button fonts
         button_font = pygame.font.Font(None, 24)
-
-        # Define font for "Game Over" text
         game_over_font = pygame.font.Font(None, 60)
 
         # General button properties
         btn_width = 200
         btn_height = 50
         btn_y = (self.win_height - btn_height) // 2
-
-        # Button horizontal position
         space_btwn_btns = 50
+
+        # Button horizontal positions
         play_again_btn_x = (self.win_width // 2) - btn_width - space_btwn_btns
         menu_btn_x = (self.win_width // 2) + space_btwn_btns
 
@@ -257,6 +240,7 @@ class Connect4UI:
         else:
             end_game_text = "Draw!"
 
+        # Render and store game over text/rect
         game_over_text = game_over_font.render(end_game_text, True, self.color_white)
         game_over_rect = game_over_text.get_rect(center=(self.win_width // 2, title_y))
 
@@ -268,16 +252,30 @@ class Connect4UI:
                                               btn_height)
         self.menu_btn = self.DrawButton(button_font, "Main Menu", menu_btn_x, btn_y, btn_width, btn_height)
 
-        # Update the display to show the changes
-        pygame.display.update()
+        pygame.display.update()  # update the window with the changes
 
     # Converts the horizontal position of the mouse to a value between 0 and the total number of columns
     def ConvertMousePos(self, mouse_xpos):
-        # Convert the horizontal value to an equivalent value between 0 and 6 by dividing by the cell size
-        # Math.floor to round the number down and force it to an int at the same time
+        # Divide the mouse horizontal position by the cell size. Use math.floor to round the value down
+        # while forcing the value to an int
         return math.floor(mouse_xpos / self.cell_size)
 
     # Renders text to the window
     def DrawText(self, text, font, text_color, x_pos, y_pos):
         img = font.render(text, True, text_color)
         self.window.blit(img, (x_pos, y_pos))
+
+    # Draws a button on the game window
+    def DrawButton(self, font, text, x, y, width, height, btn_color=(0, 0, 0),
+                   txt_color=(255, 255, 255)):
+        button_rect = pygame.Rect(x, y, width, height)  # button rect
+        pygame.draw.rect(self.window, btn_color, button_rect)  # button foreground
+        pygame.draw.rect(self.window, txt_color, button_rect, width=2)  # button outline (same color as text)
+
+        # Define the text, surface, and draw it on the button
+        text_surface = font.render(text, True, txt_color)
+        text_rect = text_surface.get_rect(center=button_rect.center)
+        self.window.blit(text_surface, text_rect)
+
+        # Return the button rect after drawing, so it can be used to determine if it was clicked
+        return button_rect

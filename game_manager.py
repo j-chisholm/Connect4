@@ -20,80 +20,105 @@ class GameManager:
             cls.instance = super().__new__(cls)
         return cls.instance
 
+    # __init__ method called at object instantiation
     def __init__(self):
         self.rows = 6
         self.cols = 7
 
+        # Instantiate UI and Board objects
         self.ui = Connect4UI(self.rows, self.cols)
         self.board = Board(self.rows, self.cols)
 
+        # Set default player values
         self.player1 = Player("Player", 1, "X")
         self.player2 = Player("Computer", 2, "O")
         self.player = self.player1
         self.computer = self.player2
 
+        # Player 1 has first turn by default
         self.current_player = self.player1
 
+        # Set default game loop variables
         self.is_game_over = False
         self.is_random_first_turn = True
         self.player_has_first_turn = True
 
-    # Defines the logic for the Main Menu
+    # Defines the logic for displaying and interacting with the main menu
     def DisplayMainMenu(self):
+        # Initialize the menu and display the main
         self.ui.InitWindow()
         self.ui.DrawMainMenuUI()
 
+        # Main Menu loop
         while True:
             for event in pygame.event.get():
+                # If the 'x' button is clicked
                 if event.type == pygame.QUIT:
                     sys.exit()
+                # On mouse clicks...
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # Get the mouse position
                     mouse_pos = pygame.mouse.get_pos()
 
                     # Check if a button was clicked
                     if self.ui.play_btn.collidepoint(mouse_pos):
-                        self.PlayGame()
+                        self.PlayGame()  # Play the game
                         break
                     elif self.ui.rules_btn.collidepoint(mouse_pos):
-                        self.DisplayRules()
+                        self.DisplayRules()  # Display the rules
                         break
                     elif self.ui.options_btn.collidepoint(mouse_pos):
-                        self.DisplayOptions()
+                        self.DisplayOptions()  # Show the options menu
                         break
                     elif self.ui.exit_btn.collidepoint(mouse_pos):
-                        sys.exit()
+                        sys.exit()  # Exit the game
 
             pygame.display.update()
 
+    # Defines the logic for displaying the rules
     def DisplayRules(self):
+        # Set the local file path for the rules text file
         file = 'v3_rules.txt'
+
+        # Open the file and store the rules text
         with open(file, 'r') as file:
             rules_text = file.read()
         file.close()
 
+        # Display the rules on the UI
         self.ui.DrawRulesUI(rules_text)
 
+        # Main Rules UI loop
         while True:
             for event in pygame.event.get():
+                # Quit if the 'x' button is clicked
                 if event.type == pygame.QUIT:
                     sys.exit()
+                # On mouse clicks...
                 elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the mouse position
                     mouse_pos = pygame.mouse.get_pos()
                     if self.ui.back_btn.collidepoint(mouse_pos):
-                        self.DisplayMainMenu()
+                        self.DisplayMainMenu()  # Return to the main menu
                         break
 
+    # Defines the logic for displaying the options
     def DisplayOptions(self):
+        # Display the options window
         self.ui.DrawOptionsUI()
 
+        # Main options UI loop
         while True:
             for event in pygame.event.get():
+                # Quit ff the 'x' button was clicked
                 if event.type == pygame.QUIT:
                     sys.exit()
+                # On mouse clicks...
                 elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # Get the mouse position
                     mouse_pos = pygame.mouse.get_pos()
-                    # Toggle player token color
+
+                    # Toggle the player token between red and yellow
                     if self.ui.token_btn.collidepoint(mouse_pos):
                         if self.ui.token_btn_label == "Token: Red":
                             self.computer.SetPlayerToken("X")
@@ -107,7 +132,8 @@ class GameManager:
 
                             self.ui.token_btn_label = "Token: Red"
                             self.ui.token_btn_color = self.ui.color_red
-                    # Toggle first turn
+
+                    # Toggle the option for who has the first turn (player, computer, random)
                     elif self.ui.first_move_btn.collidepoint(mouse_pos):
                         if self.ui.first_move_label == "Player has first turn":
                             self.ui.first_move_label = "Computer has first turn"
@@ -119,74 +145,89 @@ class GameManager:
                             self.ui.first_move_label = "Player has first turn"
                             self.player_has_first_turn = True
                             self.is_random_first_turn = False
-                    # Handles the back button
+
+                    # Return to the main menu
                     elif self.ui.back_btn.collidepoint(mouse_pos):
                         self.DisplayMainMenu()
                         break
+
                     ''' * * * NAME INPUT FUNCTIONALITY REMOVED * * *
-                    # Handles checking in the input box is clicked
+                    # Activates the text box if it's clicked
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if self.ui.name_input_box.collidepoint(pygame.mouse.get_pos()):
                             self.ui.input_active = True
                         else:
                             self.ui.input_active = False
-                # Handle getting keystrokes for the users name
+                            
+                # Save and display the name the user enters in the text box
                 elif self.ui.input_active and event.type == pygame.KEYDOWN:
-                    # Handle backspace
+                    # Remove 1 character if the player presses backspace
                     if event.key == pygame.K_BACKSPACE:
                         self.ui.name_input_text = self.ui.name_input_text[:-1]
-                    # Handle return/enter
+                    # Do nothing if the player enters Enter/Return
                     elif event.key == pygame.K_RETURN:
                         pass
-                    # Handle other characters
+                    # Append all other characters to the player's name
                     else:
                         self.ui.name_input_text += event.unicode '''
 
-            self.ui.DrawOptionsUI()
+            self.ui.DrawOptionsUI()  # Update the window by redrawing the options UI
 
-    # Defines the logic for Player Vs Computer
+    # Defines the logic for the main game loop
     def PlayGame(self):
+        # Initialize the board and the window
         self.board.ResetBoard()
         self.ui.InitWindow()
+
+        # Draw the UI to display the board
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-        self.player.SetAsHuman()
+        # Sets the player to human-controlled and the computer to computer-controlled
+        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
+        # Set an arbitrary default value for the col being hovered over
         prev_hover_col = 1
 
+        # Apply player's chosen options
         if self.is_random_first_turn:
-            self.RandomizeFirstTurn()
+            self.RandomizeFirstTurn()  # Set the turn order to random
 
         if self.player_has_first_turn:
-            self.current_player = self.player
+            self.current_player = self.player  # Set the turn order to player always has first turn
         else:
-            self.current_player = self.computer
+            self.current_player = self.computer  # Set the turn order to computer always has first turn
 
+        # Define the main game loop
         while not self.is_game_over:
+            # Get the token of the active player
             player_token = self.current_player.GetPlayerToken()
 
-            # current_player is controlled by a person
+            # Get a mouse input from the player
             if self.current_player.isHuman:
                 for event in pygame.event.get():
+                    # Quit if the 'x' button is clicked
                     if event.type == pygame.QUIT:
                         sys.exit()
 
                     #  Track the player's mouse to display the column they are hovering over
                     if event.type == pygame.MOUSEMOTION:
                         # Draw the player's token in the current column they are hovering
-                        hovering_col = self.ui.ConvertMousePos((event.pos[0])) + 1
+                        hovering_col = self.ui.ConvertMousePos((event.pos[0])) + 1  # +1 to account for 0-indexing
                         self.board.TempUpdateBoard(hovering_col, player_token)
                         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-                        # Remove player token from the previous column
+                        # Remove player token from the previous column they hovered over
                         if hovering_col != prev_hover_col:
-                            self.board.UndoTemporaryBoardUpdate(prev_hover_col)
+                            self.board.UndoTempBoardUpdate(prev_hover_col)
                             prev_hover_col = hovering_col
 
+                    # On mouse clicks...
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        # Pass the first (x/horizontal) value of the tuple. The x value aligns with the col number
-                        player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1
+                        # Pass the first (x/horizontal) value of the tuple which aligns with the col number
+                        player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1  # +1 to account for 0-indexing
+
+                        # Update the board
                         self.board.UpdateBoard(player_choice, player_token)
                         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
@@ -195,13 +236,16 @@ class GameManager:
                             self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                             continue
 
-                        # Change the current player
-                        self.SwapTurn()
+                        self.SwapTurn()  # Change the active player
 
-            # current_player is controlled by the computer
+            # Get an input from the AI
             else:
-                time.sleep(0.5)
+                time.sleep(0.5)  # Pieces appear suddenly, so wait a certain amount of time
+
+                # Get a move from the AI and update the board
                 player_choice = self.RandomMove()
+
+                # Update the board
                 self.board.UpdateBoard(player_choice, player_token)
                 self.ui.DrawBoardUI(self.board.GetGameBoard())
 
@@ -210,43 +254,47 @@ class GameManager:
                     self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                     continue
 
-                # Change the current player
-                self.SwapTurn()
+                self.SwapTurn()  # Change the current player
 
-            self.ui.DrawBoardUI(self.board.GetGameBoard())
+            self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
 
             # End the game if the board is full
             if self.board.IsBoardFull():
                 self.is_game_over = self.PlayAgain(None)
 
-        pygame.quit()
+        pygame.quit()  # Quit the application after exiting the main game loop
 
-    # Allows the player to decide if they would like to play again or quit
+    # Defines logic for restarting the game after a match has ended
     def PlayAgain(self, winner):
-        self.ui.DrawPlayAgainUI(winner)
+        self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play again
 
+        # Defines the logic for the play again window
         while True:
             for event in pygame.event.get():
+                # Quit if the 'x' button is clicked
                 if event.type == pygame.QUIT:
                     sys.exit()
+                # On mouse clicks...
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # Get the mouse position
                     mouse_pos = pygame.mouse.get_pos()
 
                     # Check if a button was clicked
                     if self.ui.play_again_btn.collidepoint(mouse_pos):
-                        self.PlayGame()
+                        self.PlayGame()  # Play the game again
                         return True
                     elif self.ui.menu_btn.collidepoint(mouse_pos):
-                        self.DisplayMainMenu()
+                        self.DisplayMainMenu()  # Return to the main menu
 
-            pygame.display.update()
+            pygame.display.update()  # Update the window with any visual changes
 
-    # Generates a random move
+    # Generates a random move for the AI
     def RandomMove(self):
+        # Get the board size and the number of tokens in each col
         num_rows, num_cols = self.board.GetBoardSize()
         tokens_per_col = self.board.GetTokensPerColumn()
 
+        # Get a random move and validate it against available moves
         while True:
             random_move = int(random.randint(1, num_cols))
             if tokens_per_col[random_move] < num_rows:
@@ -254,14 +302,14 @@ class GameManager:
 
         return random_move
 
-    # Change the current player
+    # Swaps the active player
     def SwapTurn(self):
         if self.current_player == self.player1:
             self.current_player = self.player2
         else:
             self.current_player = self.player1
 
-    # Randomizes who has the first turn in the next game
+    # Randomizes who has the first turn in the *next* game
     def RandomizeFirstTurn(self):
         if random.randint(1, 2) == 1:
             self.player_has_first_turn = True
