@@ -27,7 +27,7 @@ class GameManager:
 
         # Instantiate UI and Board objects
         self.ui = Connect4UI(self.rows, self.cols)
-        self.board = Board(self.rows, self.cols)
+        self.board = Board(self.rows, self.cols, [])
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")

@@ -1,20 +1,11 @@
 # Board Class
-# Singleton
 # This class represents the game board for Connect Four. It handles
 # the board state including updating the board and checking for
 # winning conditions.
 
 class Board:
-    instance = None
-
-    # Ensure that only one instance of this class exists
-    def __new__(cls, rows, cols):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls)
-        return cls.instance
-
     # __init__ method called at object instantiation
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, current_board):
         # Set the board size
         self.num_rows = rows
         self.num_cols = cols
@@ -24,7 +15,7 @@ class Board:
         self.col_labels = None
 
         # Default container types for tracking board state
-        self.game_board = []
+        self.game_board = current_board
         self.num_tokens_per_col = {}
 
     # Resets the board to its default state
@@ -46,7 +37,15 @@ class Board:
 
     # Updates the game board with a player's token in the given column
     # Updates the number of tokens in each column
-    def UpdateBoard(self, player_choice, player_token):
+    def UpdateBoard(self, player_choice, player_token, game_board):
+        '''ERASE LINES 41-47. REMOVE 'game_board' FROM PARAMS. ADDED FOR TESTING'''
+        self.num_tokens_per_col = {col: 0 for col in range(1, self.num_cols + 1)}
+
+        for i in range(1, 7):
+            for j in range(1, 8):
+                if game_board[i - 1][j - 1] != ' ':
+                    self.num_tokens_per_col[j] += 1
+
         # Board[0][0] is at the top left of the game board, so the value
         # in 'row' is inverted
         row = self.num_tokens_per_col[player_choice]
@@ -74,14 +73,30 @@ class Board:
             self.game_board[self.num_rows - 1 - row][hovering_col - 1] = ' '
 
     # Checks if there are no more empty spaces on the board. Returns a boolean value
-    def IsBoardFull(self):
+    def IsBoardFull(self, game_board):
+        '''ERASE LINES 77-83. REMOVE 'game_board' FROM PARAMS. ADDED FOR TESTING'''
+        self.num_tokens_per_col = {col: 0 for col in range(1, self.num_cols + 1)}
+
+        for i in range(1, 7):
+            for j in range(1, 8):
+                if game_board[i - 1][j - 1] != ' ':
+                    self.num_tokens_per_col[j] += 1
+
         for num_tokens in self.num_tokens_per_col.values():
             if num_tokens != self.num_rows:
                 return False
         return True
 
     # Checks the board to determine if there are 4 of the same tokens in a row. Returns a boolean value
-    def CheckFourInARow(self, player_token, player_choice):
+    def CheckFourInARow(self, player_token, player_choice, game_board):
+        '''ERASE LINES 84-90. REMOVE 'game_board' FROM PARAMS. ADDED FOR TESTING'''
+        self.num_tokens_per_col = {col: 0 for col in range(1, self.num_cols + 1)}
+
+        for i in range(1, 7):
+            for j in range(1, 8):
+                if game_board[i - 1][j - 1] != ' ':
+                    self.num_tokens_per_col[j] += 1
+
         start_row = self.num_rows - self.num_tokens_per_col[player_choice]
         start_col = player_choice - 1
 
