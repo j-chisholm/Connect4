@@ -204,7 +204,7 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
         self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
