@@ -253,9 +253,12 @@ class GameManager:
                         # Pass the first (x/horizontal) value of the tuple which aligns with the col number
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1  # +1 to account for 0-indexing
 
-                        # Update the board
-                        self.board.UpdateBoard(player_choice, player_token)
-                        self.ui.DrawBoardUI(self.board.GetGameBoard())
+                        if self.board.GetTokensPerColumn()[player_choice] < self.board.num_rows:
+                            # Update the board
+                            self.board.UpdateBoard(player_choice, player_token)
+                            self.ui.DrawBoardUI(self.board.GetGameBoard())
+
+                            self.SwapTurn()
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
@@ -266,8 +269,6 @@ class GameManager:
                         elif self.board.IsBoardFull():
                             #self.KeepScore(player_token, win=False)
                             self.is_game_over = self.PlayAgain(None)
-
-                        self.SwapTurn()  # Change the active player
 
             # Get an input from the AI
             else:

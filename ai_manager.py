@@ -3,7 +3,6 @@
 # This class is responsible for analyzing the board (state) and
 # determining the best move for the AI to take (action)
 
-import random
 import math
 import copy
 import threading
@@ -23,9 +22,6 @@ class AIManager():
 
         self.ai_token = None
         self.opp_token = None
-
-        self.best_score = None
-        self.best_column = None
 
         # Init transposition table
         self.transposition_table = {}
@@ -214,7 +210,7 @@ class AIManager():
             else:  # No more valid moves, the game is over
                 return 0, None
         elif depth == 0:  # Depth is 0, return the heuristic value of the board
-            return self.RateMove(curr_board), self.best_column
+            return self.RateMove(curr_board), None
 
         if maximizing_player:
             best_score = -math.inf  # Set an extremely small value for max comparison
