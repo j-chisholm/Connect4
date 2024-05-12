@@ -2,14 +2,17 @@
 # Singleton
 # This class manages the Connect Four game. It handles the game logic
 # and handles interactions between the Board Class and Player Class
-
-import time
+import math
 import random
 import pygame
 import sys
+import copy
+import threading
+from ai_manager import AIManager
 from board import Board
 from player import Player
 from connect4_ui import Connect4UI
+
 
 class GameManager:
     instance = None
@@ -27,7 +30,13 @@ class GameManager:
 
         # Instantiate UI and Board objects
         self.ui = Connect4UI(self.rows, self.cols)
-        self.board = Board(self.rows, self.cols, [])
+        self.board = Board(self.rows, self.cols)
+
+        # Initialize the AI
+        self.ai = AIManager(self.rows, self.cols)
+        self.depth = 0
+
+        self.sleep_time = 0
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -42,6 +51,15 @@ class GameManager:
         self.is_game_over = False
         self.is_random_first_turn = True
         self.player_has_first_turn = True
+
+        # Set default score tracking variables
+        self.total_games = 0
+        self.red_wins_1st_turn = 0  # How many times red wins if it had 1st turn
+        self.red_wins_2nd_turn = 0  # How many times red wins if it had 2nd turn
+        self.red_draws_2nd_turn = 0  # How many times red draws if it had 2nd turn
+        self.yellow_wins_1st_turn = 0  # How many times yellow wins if it had 1st turn
+        self.yellow_wins_2nd_turn = 0  # How many times yellow wins if it had 2nd turn
+        self.yellow_draws_2nd_turn = 0  # How many times yellow draws if it had 2nd turn
 
     # Defines the logic for displaying and interacting with the main menu
     def DisplayMainMenu(self):
@@ -177,7 +195,10 @@ class GameManager:
     def PlayGame(self):
         # Initialize the board and the window
         self.board.ResetBoard()
+        #self.board.SetTestBoard()
         self.ui.InitWindow()
+
+        # self.ai.ClearTranspositionTable()
 
         # Draw the UI to display the board
         self.ui.DrawBoardUI(self.board.GetGameBoard())
@@ -185,6 +206,8 @@ class GameManager:
         # Sets the player to human-controlled and the computer to computer-controlled
         self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
+
+        self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
 
         # Set an arbitrary default value for the col being hovered over
         prev_hover_col = 1
@@ -197,6 +220,8 @@ class GameManager:
             self.current_player = self.player  # Set the turn order to player always has first turn
         else:
             self.current_player = self.computer  # Set the turn order to computer always has first turn
+
+        self.current_player = self.player
 
         # Define the main game loop
         while not self.is_game_over:
@@ -221,6 +246,7 @@ class GameManager:
                         if hovering_col != prev_hover_col:
                             self.board.UndoTempBoardUpdate(prev_hover_col)
                             prev_hover_col = hovering_col
+                            self.ui.DrawBoardUI(self.board.GetGameBoard())
 
                     # On mouse clicks...
                     elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -233,40 +259,55 @@ class GameManager:
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
+                            #self.KeepScore(player_token)
                             self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                             continue
+                        # End the game if the board is full
+                        elif self.board.IsBoardFull():
+                            #self.KeepScore(player_token, win=False)
+                            self.is_game_over = self.PlayAgain(None)
 
                         self.SwapTurn()  # Change the active player
 
             # Get an input from the AI
             else:
-                time.sleep(0.5)  # Pieces appear suddenly, so wait a certain amount of time
+                #pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
 
-                # Get a move from the AI and update the board
-                player_choice = self.RandomMove()
+                # Pick the optimal move
+                ai_choice = self.AIMoveThread()
 
                 # Update the board
-                self.board.UpdateBoard(player_choice, player_token)
+                self.board.UpdateBoard(ai_choice, player_token)
+                row = self.board.num_tokens_per_col[ai_choice]
+
                 self.ui.DrawBoardUI(self.board.GetGameBoard())
+                #print(self.board.GetTokensPerColumn())
+
+                self.ai.first_time = True
 
                 # Check if computer's move resulted in 4 in a row
-                if self.board.CheckFourInARow(player_token, player_choice):
+                if self.board.CheckFourInARow(player_token, ai_choice):
+                    #self.KeepScore(player_token)
                     self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                     continue
+                # End the game if the board is full
+                elif self.board.IsBoardFull():
+                    # self.KeepScore(player_token, win=False)
+                    self.is_game_over = self.PlayAgain(None)
 
                 self.SwapTurn()  # Change the current player
 
             self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
 
-            # End the game if the board is full
-            if self.board.IsBoardFull():
-                self.is_game_over = self.PlayAgain(None)
-
-        pygame.quit()  # Quit the application after exiting the main game loop
+            pygame.time.wait(self.sleep_time)
+        # pygame.quit()  # Quit the application after exiting the main game loop
 
     # Defines logic for restarting the game after a match has ended
     def PlayAgain(self, winner):
-        self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play again
+        '''Added for Fine Tuning, remove'''
+        pygame.time.wait(5000)
+        self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
+        self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play against
 
         # Defines the logic for the play again window
         while True:
@@ -288,20 +329,6 @@ class GameManager:
 
             pygame.display.update()  # Update the window with any visual changes
 
-    # Generates a random move for the AI
-    def RandomMove(self):
-        # Get the board size and the number of tokens in each col
-        num_rows, num_cols = self.board.GetBoardSize()
-        tokens_per_col = self.board.GetTokensPerColumn()
-
-        # Get a random move and validate it against available moves
-        while True:
-            random_move = int(random.randint(1, num_cols))
-            if tokens_per_col[random_move] < num_rows:
-                break
-
-        return random_move
-
     # Swaps the active player
     def SwapTurn(self):
         if self.current_player == self.player1:
@@ -315,3 +342,68 @@ class GameManager:
             self.player_has_first_turn = True
         else:
             self.player_has_first_turn = False
+
+    def KeepScore(self, winning_token, win=True):
+        self.total_games += 1
+
+        # Game ended in a win
+        if win:
+            # If red won
+            if winning_token == 'X':
+                if self.player_has_first_turn:
+                    self.red_wins_1st_turn += 1  # red won and had 1st turn
+                else:
+                    self.red_wins_2nd_turn += 1  # red won and had 2nd turn
+            # If yellow won
+            else:
+                if self.player_has_first_turn:
+                    self.yellow_wins_2nd_turn += 1  # yellow won and had 2nd turn
+                else:
+                    self.yellow_wins_1st_turn += 1  # yellow won and had 1st turn
+        # Game ended in a draw
+        else:
+            if self.player_has_first_turn:
+                self.yellow_draws_2nd_turn += 1  # yellow drawed from 2nd turn
+            else:
+                self.red_draws_2nd_turn += 1  # red drawed from 1st turn
+
+        print(f"{self.total_games} games\n"
+              f"Red won {self.red_wins_1st_turn} games as the 1st player\n"
+              f"Red won {self.red_wins_2nd_turn} games as the 2nd player\n"
+              f"Red drawed {self.red_draws_2nd_turn} games as the 2nd player\n"
+              f"Yellow won {self.yellow_wins_1st_turn} games as the 1st player\n"
+              f"Yellow won {self.yellow_wins_2nd_turn} games as the 2nd player\n"
+              f"Yellow drawed {self.yellow_draws_2nd_turn} games as the 2nd player\n")
+
+    def AIMoveThread(self):
+        ai_choice = threading.Event()
+        thread = threading.Thread(target=self.GetAIMove, args=(ai_choice,))
+        thread.start()
+        thread.join()
+
+        print(ai_choice.result)
+        return ai_choice.result
+
+    def GetAIMove(self, ai_choice):
+        self.CalculateSearchDepth()
+
+        # Create a lock to synchronize access to ai_choice
+        ai_choice_lock = threading.Lock()
+
+        with ai_choice_lock:
+            ai_choice.result = self.ai.MiniMax(copy.deepcopy(self.board), self.depth, -math.inf, math.inf,
+                                               True)[1]
+
+    def CalculateSearchDepth(self):
+        if self.ai.DetermineBoardComplexity(self.board) <= 2:
+            self.depth = 5
+        elif self.ai.DetermineBoardComplexity(self.board) <= 6:
+            self.depth = 6
+        elif self.ai.DetermineBoardComplexity(self.board) <= 8:
+            self.depth = 7
+        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
+            self.depth = 8
+        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
+            self.depth = 9
+        else:
+            self.depth = 10
