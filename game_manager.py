@@ -36,7 +36,7 @@ class GameManager:
         self.ai = AIManager(self.rows, self.cols)
         self.depth = 0
 
-        self.sleep_time = 0
+        self.sleep_time = 250
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -204,7 +204,7 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
         self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
@@ -272,7 +272,7 @@ class GameManager:
 
             # Get an input from the AI
             else:
-                #pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
+                pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
 
                 # Pick the optimal move
                 ai_choice = self.AIMoveThread()
@@ -305,8 +305,6 @@ class GameManager:
 
     # Defines logic for restarting the game after a match has ended
     def PlayAgain(self, winner):
-        '''Added for Fine Tuning, remove'''
-        pygame.time.wait(5000)
         self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
         self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play against
 
@@ -382,7 +380,6 @@ class GameManager:
         thread.start()
         thread.join()
 
-        print(ai_choice.result)
         return ai_choice.result
 
     def GetAIMove(self, ai_choice):
