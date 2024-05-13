@@ -34,7 +34,7 @@ class GameManager:
 
         # Initialize the AI
         self.ai = AIManager(self.rows, self.cols)
-        self.depth = 0
+        self.depth = 10
 
         self.sleep_time = 100
 
@@ -204,10 +204,10 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
-        self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
+        #self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
 
         # Set an arbitrary default value for the col being hovered over
         prev_hover_col = 1
@@ -245,8 +245,6 @@ class GameManager:
                             self.board.UpdateBoard(player_choice, player_token)
                             self.ui.DrawBoardUI(self.board.GetGameBoard())
 
-                            self.SwapTurn()
-
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
                             #self.KeepScore(player_token)
@@ -256,6 +254,11 @@ class GameManager:
                         elif self.board.IsBoardFull():
                             #self.KeepScore(player_token, win=False)
                             self.is_game_over = self.PlayAgain(None)
+
+                        self.SwapTurn()  # Change the current player
+
+                        # Delay after selecting a column to prevent ghost token from appearing and freezing
+                        pygame.time.delay(500)
 
                     #  Track the player's mouse to display the column they are hovering over
                     elif event.type == pygame.MOUSEMOTION:
@@ -275,7 +278,7 @@ class GameManager:
                 pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
 
                 # Pick the optimal move
-                ai_choice = self.AIMoveThread()
+                ai_choice = self.AIMoveThread(player_token)
 
                 # Update the board
                 self.board.UpdateBoard(ai_choice, player_token)
@@ -373,34 +376,34 @@ class GameManager:
               f"Yellow won {self.yellow_wins_2nd_turn} games as the 2nd player\n"
               f"Yellow drawed {self.yellow_draws_2nd_turn} games as the 2nd player\n")
 
-    def AIMoveThread(self):
+    def AIMoveThread(self, token):
         ai_choice = threading.Event()
-        thread = threading.Thread(target=self.GetAIMove, args=(ai_choice,))
+        thread = threading.Thread(target=self.GetAIMove, args=(ai_choice, token))
         thread.start()
         thread.join()
 
         return ai_choice.result
 
-    def GetAIMove(self, ai_choice):
-        self.CalculateSearchDepth()
+    def GetAIMove(self, ai_choice, token):
+        #self.CalculateSearchDepth()
 
         # Create a lock to synchronize access to ai_choice
         ai_choice_lock = threading.Lock()
 
         with ai_choice_lock:
             ai_choice.result = self.ai.MiniMax(copy.deepcopy(self.board), self.depth, -math.inf, math.inf,
-                                               True)[1]
+                                               True, token)[1]
 
     def CalculateSearchDepth(self):
         if self.ai.DetermineBoardComplexity(self.board) <= 2:
-            self.depth = 5
-        elif self.ai.DetermineBoardComplexity(self.board) <= 6:
             self.depth = 6
-        elif self.ai.DetermineBoardComplexity(self.board) <= 8:
-            self.depth = 9
-        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
+        elif self.ai.DetermineBoardComplexity(self.board) <= 4:
+            self.depth = 8
+        elif self.ai.DetermineBoardComplexity(self.board) <= 5:
             self.depth = 10
-        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
+        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
+            self.depth = 12
+        elif self.ai.DetermineBoardComplexity(self.board) <= 15:
             self.depth = 15
         else:
-            self.depth = 17
+            self.depth = 20
