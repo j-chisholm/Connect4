@@ -36,7 +36,7 @@ class GameManager:
         self.ai = AIManager(self.rows, self.cols)
         self.depth = 0
 
-        self.sleep_time = 250
+        self.sleep_time = 100
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -204,7 +204,7 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
         self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
@@ -398,10 +398,10 @@ class GameManager:
         elif self.ai.DetermineBoardComplexity(self.board) <= 6:
             self.depth = 6
         elif self.ai.DetermineBoardComplexity(self.board) <= 8:
-            self.depth = 7
-        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
             self.depth = 8
-        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
+        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
             self.depth = 9
-        else:
+        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
             self.depth = 10
+        else:
+            self.depth = 12
