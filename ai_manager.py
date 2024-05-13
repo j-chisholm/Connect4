@@ -29,6 +29,7 @@ class AIManager():
         self.transposition_table_lock = threading.Lock()
 
         self.first_time = True
+        self.complexity_score = 0
 
     # Generate a unique key for each board state and its mirrored alternatives
     def GenerateKeyForBoard(self, board):
@@ -75,7 +76,7 @@ class AIManager():
         return mirrored_board
 
     # Rates the board based on how many opportunities for success and failure are present
-    def RateMove(self, game_board):
+    def RateMove(self, game_board, token):
         score = 0
 
         # Center column
@@ -109,7 +110,7 @@ class AIManager():
 
                         # Check that we remain in the bounds of the board
                         if 0 <= r < self.num_rows and 0 <= c < self.num_cols:
-                            if game_board[r][c] == self.ai_token:
+                            if game_board[r][c] == token:
                                 own_token_count += 1
                             elif game_board[r][c] == ' ':
                                 empty_spaces += 1
@@ -124,7 +125,7 @@ class AIManager():
 
                         # Check that we remain in the bounds of the board
                         if 0 <= r < self.num_rows and 0 <= c < self.num_cols:
-                            if game_board[r][c] == self.opp_token:
+                            if game_board[r][c] == self.OtherPlayer(token):
                                 opp_token_count += 1
                             elif game_board[r][c] == ' ':
                                 empty_spaces += 1
@@ -133,16 +134,16 @@ class AIManager():
 
                     # Score each section
                     if own_token_count == 4:
-                        score += 1000
+                        score += 100
                     elif own_token_count == 3 and empty_spaces == 1:
                         score += 5
                     elif own_token_count == 2 and empty_spaces == 2:
                         score += 2
 
                     if opp_token_count == 3 and empty_spaces == 1:
-                        score -= 1000
-                    if opp_token_count == 2 and empty_spaces == 1:
-                        score -= 4
+                        score -= 7
+                    if opp_token_count == 2 and empty_spaces == 2:
+                        score -= 5
 
         return score
 
@@ -167,12 +168,35 @@ class AIManager():
                     outer_moves.append(col)
 
         # Combine moves in order of priority
+        # After sorting, all_valid_moves will contain a list of moves that are not winning_moves, blocking_moves,
+        # or losing_moves
         all_valid_moves = center_moves + adjacent_moves + outer_moves
 
-        opp_winning_moves = []  # stores the moves that result in an opponent win on the following turn
-        valid_moves = []  # stores moves that do not result in an opponent win on the following turn
+        winning_moves = []  # stores moves that result in an ai win on the current turn
+        blocking_moves = []  # stores moves that block the opponent from winning on the next turn
+        losing_moves = []  # stores the moves that result in an opponent win on the following turn
 
-        # Check if each of the valid moves results in a win on the opp's next turn
+        # Check the list of valid moves to see which results in a win on the ai's current turn
+        for move in all_valid_moves:
+            board_manager_copy = copy.deepcopy(board_manager)
+
+            # Simulate ai making this move and check if it wins. Add to winning moves if it does
+            board_manager_copy.UpdateBoard(move, self.ai_token)
+            if board_manager_copy.CheckFourInARow(self.ai_token, move):
+                winning_moves.append(move)
+                all_valid_moves.remove(move)
+
+        # Check the list of valid moves to see which prevent the opponent from winning. Add to blocking moves if it does
+        for move in all_valid_moves:
+            board_manager_copy = copy.deepcopy(board_manager)
+
+            # Simulate the opponent making this move
+            board_manager_copy.UpdateBoard(move, self.opp_token)
+            if board_manager_copy.CheckFourInARow(self.opp_token, move):
+                blocking_moves.append(move)
+                all_valid_moves.remove(move)
+
+        # Check the list valid moves to see which result in a win on the opp's next turn
         for move in all_valid_moves:
             board_manager_copy = copy.deepcopy(board_manager)
 
@@ -186,28 +210,23 @@ class AIManager():
 
                 # Check if the opp wins from this move
                 if board_manager_copy.CheckFourInARow(self.opp_token, move):
-                    opp_winning_moves.append(move)
+                    losing_moves.append(move)
+                    all_valid_moves.remove(move)
 
-        for move in all_valid_moves:
-            if move not in opp_winning_moves:
-                valid_moves.append(move)
-
-        if self.first_time:
-            for col, num_tokens in board_manager.GetTokensPerColumn().items():
-                print(col, num_tokens, sep='-')
-            print(all_valid_moves, sep='\n')
-            self.first_time = False
-
-        return valid_moves, opp_winning_moves
+        return winning_moves, blocking_moves, losing_moves, all_valid_moves
 
     # Defines the MiniMax algorithm
     def MiniMax(self, board_manager, depth, alpha, beta, maximizing_player):
-        best_moves, worst_moves = self.GetValidMoves(board_manager)
+        winning_moves, blocking_moves, losing_moves, other_moves = self.GetValidMoves(board_manager)
         # AI should only consider the best moves unless only unfavorable moves are left
-        if len(best_moves) > 0:
-            moves_list = best_moves
+        if len(winning_moves) > 0:
+            moves_list = winning_moves
+        elif len(blocking_moves) > 0:
+            moves_list = blocking_moves
+        elif len(other_moves) > 0:
+            moves_list = other_moves
         else:
-            moves_list = worst_moves
+            moves_list = losing_moves
 
         curr_board = board_manager.GetGameBoard()
 
@@ -228,7 +247,7 @@ class AIManager():
             else:  # No more valid moves, the game is over
                 return 0, None
         elif depth == 0:  # Depth is 0, return the heuristic value of the board
-            return self.RateMove(curr_board), None
+            return self.RateMove(curr_board, self.ai_token), None
 
         if maximizing_player:
             best_score = -math.inf  # Set an extremely small value for max comparison
@@ -309,8 +328,6 @@ class AIManager():
             with self.transposition_table_lock:
                 self.transposition_table[board_key] = (best_score, best_column)
 
-            print(best_score, best_column, sep='\t')
-            print(moves_list)
             return best_score, best_column
 
     # Determines if the provided player has 4 pieces in a row
@@ -374,7 +391,9 @@ class AIManager():
         complexity_score += (ai_winning_moves * 2)  # Constant is the weight of the ai's winning moves
         complexity_score += (opp_winning_moves * 3)  # Constant is the weight of the opp's winning moves
 
-        #print(f"Complexity: {complexity_score} ")
+        if self.first_time:
+            print(complexity_score)
+            self.first_time = False
         return complexity_score
 
     # Finds the number of potential winning moves for the provided token

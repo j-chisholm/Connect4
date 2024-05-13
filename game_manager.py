@@ -204,7 +204,7 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
         self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
@@ -235,21 +235,8 @@ class GameManager:
                     if event.type == pygame.QUIT:
                         sys.exit()
 
-                    #  Track the player's mouse to display the column they are hovering over
-                    if event.type == pygame.MOUSEMOTION:
-                        # Draw the player's token in the current column they are hovering
-                        hovering_col = self.ui.ConvertMousePos((event.pos[0])) + 1  # +1 to account for 0-indexing
-                        self.board.TempUpdateBoard(hovering_col, player_token)
-                        self.ui.DrawBoardUI(self.board.GetGameBoard())
-
-                        # Remove player token from the previous column they hovered over
-                        if hovering_col != prev_hover_col:
-                            self.board.UndoTempBoardUpdate(prev_hover_col)
-                            prev_hover_col = hovering_col
-                            self.ui.DrawBoardUI(self.board.GetGameBoard())
-
                     # On mouse clicks...
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         # Pass the first (x/horizontal) value of the tuple which aligns with the col number
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1  # +1 to account for 0-indexing
 
@@ -270,6 +257,19 @@ class GameManager:
                             #self.KeepScore(player_token, win=False)
                             self.is_game_over = self.PlayAgain(None)
 
+                    #  Track the player's mouse to display the column they are hovering over
+                    elif event.type == pygame.MOUSEMOTION:
+                        # Draw the player's token in the current column they are hovering
+                        hovering_col = self.ui.ConvertMousePos((event.pos[0])) + 1  # +1 to account for 0-indexing
+                        self.board.TempUpdateBoard(hovering_col, player_token)
+                        self.ui.DrawBoardUI(self.board.GetGameBoard())
+
+                        # Remove player token from the previous column they hovered over
+                        if hovering_col != prev_hover_col:
+                            self.board.UndoTempBoardUpdate(prev_hover_col)
+                            prev_hover_col = hovering_col
+                            self.ui.DrawBoardUI(self.board.GetGameBoard())
+
             # Get an input from the AI
             else:
                 pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
@@ -282,7 +282,6 @@ class GameManager:
                 row = self.board.num_tokens_per_col[ai_choice]
 
                 self.ui.DrawBoardUI(self.board.GetGameBoard())
-                #print(self.board.GetTokensPerColumn())
 
                 self.ai.first_time = True
 
@@ -398,10 +397,10 @@ class GameManager:
         elif self.ai.DetermineBoardComplexity(self.board) <= 6:
             self.depth = 6
         elif self.ai.DetermineBoardComplexity(self.board) <= 8:
-            self.depth = 8
-        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
             self.depth = 9
-        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
+        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
             self.depth = 10
+        elif self.ai.DetermineBoardComplexity(self.board) <= 12:
+            self.depth = 15
         else:
-            self.depth = 12
+            self.depth = 17
