@@ -43,9 +43,9 @@ class AIManager():
         # Return the smallest key in lexicographical order
         return min(original_key, mirrored_horizontal_key)
 
-    # Clear transposition table to save memory
-    def ClearTranspositionTable(self):
-        self.transposition_table.clear()
+    def MirrorBoardHorizontally(self, board):
+        mirrored_board = [row[::-1] for row in board]
+        return mirrored_board
 
     # Determines whether a node is terminal
     def IsTerminalNode(self, board_manager):
@@ -64,10 +64,6 @@ class AIManager():
         self.ai_token = token
         self.opp_token = opp_token
 
-    def MirrorBoardHorizontally(self, board):
-        mirrored_board = [row[::-1] for row in board]
-        return mirrored_board
-
     # Rates the board based on how many opportunities for success and failure are present
     def RateMove(self, game_board, token):
         score = 0
@@ -75,7 +71,7 @@ class AIManager():
         # Center column
         center_column = list(game_board[i][self.num_cols // 2] for i in range(self.num_rows))
         center_count = center_column.count(token)
-        score += center_count * 6
+        score += center_count * 4
 
         #Define each direction to check in
         directions = [
@@ -129,12 +125,14 @@ class AIManager():
                     if own_token_count == 4:
                         score += 100
                     elif own_token_count == 3 and empty_spaces == 1:
-                        score += 5
+                        score += 7
                     elif own_token_count == 2 and empty_spaces == 2:
-                        score += 2
+                        score += 4
 
                     if opp_token_count == 3 and empty_spaces == 1:
-                        score -= 4
+                        score -= 10
+                    elif opp_token_count == 2 and empty_spaces == 2:
+                        score -= 5
 
         return score
 
@@ -346,8 +344,7 @@ class AIManager():
         board_complexity += (ai_winning_moves * 2)  # Constant is the weight of the ai's winning moves
         board_complexity += (opp_winning_moves * 3)  # Constant is the weight of the opp's winning moves
 
-        print(board_complexity)
-        return board_complexity
+        return round(board_complexity, 2)  # Return board_complexity to 2 decimal values
 
     # Finds the number of potential winning moves for the provided token
     def FindNumberOfPotentialWins(self, game_board, token):

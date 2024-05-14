@@ -4,7 +4,6 @@
 from game_manager import GameManager
 
 def main():
-
     # Create a game_manager game object
     gm = GameManager()
 

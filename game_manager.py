@@ -34,9 +34,9 @@ class GameManager:
 
         # Initialize the AI
         self.ai = AIManager(self.rows, self.cols)
-        self.depth = 7
-
-        self.sleep_time = 0
+        self.min_depth = 8
+        self.depth = 8
+        self.depth_scale = 0.20
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -195,7 +195,6 @@ class GameManager:
     def PlayGame(self):
         # Initialize the board and the window
         self.board.ResetBoard()
-        #self.board.SetTestBoard()
         self.ui.InitWindow()
 
         # self.ai.ClearTranspositionTable()
@@ -247,12 +246,10 @@ class GameManager:
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
-                            self.KeepScore(player_token)
                             self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                             continue
                         # End the game if the board is full
                         elif self.board.IsBoardFull():
-                            self.KeepScore(player_token, win=False)
                             self.is_game_over = self.PlayAgain(None)
 
                         self.SwapTurn()  # Change the current player
@@ -275,8 +272,6 @@ class GameManager:
 
             # Get an input from the AI
             else:
-                pygame.time.wait(self.sleep_time)  # Pieces appear suddenly, so wait a certain amount of time
-
                 # Pick the optimal move
                 ai_choice = self.AIMoveThread(player_token)
 
@@ -290,24 +285,19 @@ class GameManager:
 
                 # Check if computer's move resulted in 4 in a row
                 if self.board.CheckFourInARow(player_token, ai_choice):
-                    self.KeepScore(player_token)
                     self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                     continue
                 # End the game if the board is full
                 elif self.board.IsBoardFull():
-                    self.KeepScore(player_token, win=False)
                     self.is_game_over = self.PlayAgain(None)
 
                 self.SwapTurn()  # Change the current player
 
             self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
-
-            pygame.time.wait(self.sleep_time)
         # pygame.quit()  # Quit the application after exiting the main game loop
 
     # Defines logic for restarting the game after a match has ended
     def PlayAgain(self, winner):
-        self.PlayGame()
         self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
         self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play against
 
@@ -345,38 +335,6 @@ class GameManager:
         else:
             self.player_has_first_turn = False
 
-    def KeepScore(self, winning_token, win=True):
-        self.total_games += 1
-
-        # Game ended in a win
-        if win:
-            # If red won
-            if winning_token == 'X':
-                if self.player_has_first_turn:
-                    self.red_wins_1st_turn += 1  # red won and had 1st turn
-                else:
-                    self.red_wins_2nd_turn += 1  # red won and had 2nd turn
-            # If yellow won
-            else:
-                if self.player_has_first_turn:
-                    self.yellow_wins_2nd_turn += 1  # yellow won and had 2nd turn
-                else:
-                    self.yellow_wins_1st_turn += 1  # yellow won and had 1st turn
-        # Game ended in a draw
-        else:
-            if self.player_has_first_turn:
-                self.yellow_draws_2nd_turn += 1  # yellow drawed from 2nd turn
-            else:
-                self.red_draws_2nd_turn += 1  # red drawed from 1st turn
-
-        print(f"{self.total_games} games\n"
-              f"Red won {self.red_wins_1st_turn} games as the 1st player\n"
-              f"Red won {self.red_wins_2nd_turn} games as the 2nd player\n"
-              f"Red drawed {self.red_draws_2nd_turn} games as the 2nd player\n"
-              f"Yellow won {self.yellow_wins_1st_turn} games as the 1st player\n"
-              f"Yellow won {self.yellow_wins_2nd_turn} games as the 2nd player\n"
-              f"Yellow drawed {self.yellow_draws_2nd_turn} games as the 2nd player\n")
-
     def AIMoveThread(self, token):
         ai_choice = threading.Event()
         thread = threading.Thread(target=self.GetAIMove, args=(ai_choice, token))
@@ -386,7 +344,7 @@ class GameManager:
         return ai_choice.result
 
     def GetAIMove(self, ai_choice, token):
-        #self.CalculateSearchDepth()
+        self.CalculateSearchDepth()
 
         # Create a lock to synchronize access to ai_choice
         ai_choice_lock = threading.Lock()
@@ -396,15 +354,10 @@ class GameManager:
                                                True, token)[1]
 
     def CalculateSearchDepth(self):
-        if self.ai.DetermineBoardComplexity(self.board) <= 2:
-            self.depth = 5
-        elif self.ai.DetermineBoardComplexity(self.board) <= 4:
-            self.depth = 9
-        elif self.ai.DetermineBoardComplexity(self.board) <= 5:
-            self.depth = 10
-        elif self.ai.DetermineBoardComplexity(self.board) <= 10:
-            self.depth = 12
-        elif self.ai.DetermineBoardComplexity(self.board) <= 15:
-            self.depth = 15
-        else:
-            self.depth = 20
+        # Determine board complexity
+        board_complexity = self.ai.DetermineBoardComplexity(self.board)
+
+        # Calculate depth
+        self.depth = int((self.depth_scale * board_complexity)) + self.min_depth
+
+        print(f"BC: {board_complexity} - D: {self.depth}")
