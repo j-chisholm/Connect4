@@ -34,9 +34,9 @@ class GameManager:
 
         # Initialize the AI
         self.ai = AIManager(self.rows, self.cols)
-        self.depth = 10
+        self.depth = 5
 
-        self.sleep_time = 100
+        self.sleep_time = 0
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -221,7 +221,7 @@ class GameManager:
         else:
             self.current_player = self.computer  # Set the turn order to computer always has first turn
 
-        self.current_player = self.player
+        #self.current_player = self.player
 
         # Define the main game loop
         while not self.is_game_over:
@@ -247,12 +247,12 @@ class GameManager:
 
                         # Check if player's move resulted in 4 in a row
                         if self.board.CheckFourInARow(player_token, player_choice):
-                            #self.KeepScore(player_token)
+                            self.KeepScore(player_token)
                             self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                             continue
                         # End the game if the board is full
                         elif self.board.IsBoardFull():
-                            #self.KeepScore(player_token, win=False)
+                            self.KeepScore(player_token, win=False)
                             self.is_game_over = self.PlayAgain(None)
 
                         self.SwapTurn()  # Change the current player
@@ -290,12 +290,12 @@ class GameManager:
 
                 # Check if computer's move resulted in 4 in a row
                 if self.board.CheckFourInARow(player_token, ai_choice):
-                    #self.KeepScore(player_token)
+                    self.KeepScore(player_token)
                     self.is_game_over = self.PlayAgain(self.current_player.GetPlayerName())
                     continue
                 # End the game if the board is full
                 elif self.board.IsBoardFull():
-                    # self.KeepScore(player_token, win=False)
+                    self.KeepScore(player_token, win=False)
                     self.is_game_over = self.PlayAgain(None)
 
                 self.SwapTurn()  # Change the current player
@@ -307,6 +307,7 @@ class GameManager:
 
     # Defines logic for restarting the game after a match has ended
     def PlayAgain(self, winner):
+        self.PlayGame()
         self.ui.DrawBoardUI(self.board.GetGameBoard())  # Update the window by redrawing the board
         self.ui.DrawPlayAgainUI(winner)  # Draw the UI that prompts the user to play against
 
@@ -396,9 +397,9 @@ class GameManager:
 
     def CalculateSearchDepth(self):
         if self.ai.DetermineBoardComplexity(self.board) <= 2:
-            self.depth = 6
+            self.depth = 5
         elif self.ai.DetermineBoardComplexity(self.board) <= 4:
-            self.depth = 8
+            self.depth = 9
         elif self.ai.DetermineBoardComplexity(self.board) <= 5:
             self.depth = 10
         elif self.ai.DetermineBoardComplexity(self.board) <= 10:

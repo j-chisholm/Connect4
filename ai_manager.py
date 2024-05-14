@@ -33,18 +33,15 @@ class AIManager():
 
     # Generate a unique key for each board state and its mirrored alternatives
     def GenerateKeyForBoard(self, board):
+        # Generate the original key
         original_key = ''.join(''.join(row) for row in board)
         mirrored_horizontally = self.MirrorBoardHorizontally(board)
-        mirrored_vertically = self.MirrorBoardVertically(board)
-        mirrored_horizontally_and_vertically = self.MirrorBoardVertically(mirrored_horizontally)
 
         # Generate keys for mirrored states as well
         mirrored_horizontal_key = ''.join(''.join(row) for row in mirrored_horizontally)
-        mirrored_vertical_key = ''.join(''.join(row) for row in mirrored_vertically)
-        mirrored_horizontal_and_vertical_key = ''.join(''.join(row) for row in mirrored_horizontally_and_vertically)
 
         # Return the smallest key in lexicographical order
-        return min(original_key, mirrored_horizontal_key, mirrored_vertical_key, mirrored_horizontal_and_vertical_key)
+        return min(original_key, mirrored_horizontal_key)
 
     # Clear transposition table to save memory
     def ClearTranspositionTable(self):
@@ -71,10 +68,6 @@ class AIManager():
         mirrored_board = [row[::-1] for row in board]
         return mirrored_board
 
-    def MirrorBoardVertically(self, board):
-        mirrored_board = board[::-1]
-        return mirrored_board
-
     # Rates the board based on how many opportunities for success and failure are present
     def RateMove(self, game_board, token):
         score = 0
@@ -82,7 +75,7 @@ class AIManager():
         # Center column
         center_column = list(game_board[i][self.num_cols // 2] for i in range(self.num_rows))
         center_count = center_column.count(token)
-        score += center_count * 3
+        score += center_count * 5
 
         #Define each direction to check in
         directions = [
@@ -141,9 +134,9 @@ class AIManager():
                         score += 4
 
                     if opp_token_count == 3 and empty_spaces == 1:
-                        score -= 7
+                        score -= 5
                     elif opp_token_count == 2 and empty_spaces == 2:
-                        score -= 4
+                        score -= 3
 
         return score
 
