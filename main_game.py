@@ -8,6 +8,6 @@ def main():
     gm = GameManager()
 
     # Display the main menu as entry to the game
-    gm.PlayGame()
+    gm.DisplayMainMenu()
 
 main()

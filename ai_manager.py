@@ -130,9 +130,9 @@ class AIManager():
                         score += 4
 
                     if opp_token_count == 3 and empty_spaces == 1:
-                        score -= 10
+                        score -= 12
                     elif opp_token_count == 2 and empty_spaces == 2:
-                        score -= 5
+                        score -= 7
 
         return score
 
@@ -341,7 +341,7 @@ class AIManager():
         opp_winning_moves = self.FindNumberOfPotentialWins(curr_board, self.opp_token)
 
         # Calculate the added complexity of for the number of winning moves on both sides
-        board_complexity += (ai_winning_moves * 2)  # Constant is the weight of the ai's winning moves
+        board_complexity += (ai_winning_moves * 4)  # Constant is the weight of the ai's winning moves
         board_complexity += (opp_winning_moves * 3)  # Constant is the weight of the opp's winning moves
 
         return round(board_complexity, 2)  # Return board_complexity to 2 decimal values

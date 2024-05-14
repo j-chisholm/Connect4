@@ -36,7 +36,7 @@ class GameManager:
         self.ai = AIManager(self.rows, self.cols)
         self.min_depth = 8
         self.depth = 8
-        self.depth_scale = 0.20
+        self.depth_scale = 0.25
 
         # Set default player values
         self.player1 = Player("Player", 1, "X")
@@ -219,8 +219,6 @@ class GameManager:
             self.current_player = self.player  # Set the turn order to player always has first turn
         else:
             self.current_player = self.computer  # Set the turn order to computer always has first turn
-
-        self.current_player = self.player
 
         # Define the main game loop
         while not self.is_game_over:
