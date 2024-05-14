@@ -75,7 +75,7 @@ class AIManager():
         # Center column
         center_column = list(game_board[i][self.num_cols // 2] for i in range(self.num_rows))
         center_count = center_column.count(token)
-        score += center_count * 5
+        score += center_count * 6
 
         #Define each direction to check in
         directions = [
@@ -129,14 +129,12 @@ class AIManager():
                     if own_token_count == 4:
                         score += 100
                     elif own_token_count == 3 and empty_spaces == 1:
-                        score += 7
+                        score += 5
                     elif own_token_count == 2 and empty_spaces == 2:
-                        score += 4
+                        score += 2
 
                     if opp_token_count == 3 and empty_spaces == 1:
-                        score -= 5
-                    elif opp_token_count == 2 and empty_spaces == 2:
-                        score -= 3
+                        score -= 4
 
         return score
 
@@ -231,14 +229,14 @@ class AIManager():
                 return self.transposition_table[board_key]
 
         if self.IsTerminalNode(board_manager):  # Reached a terminal node
-            if self.HasPlayerWon(curr_board, token):
+            if self.HasPlayerWon(curr_board, self.ai_token):
                 return math.inf, None
-            elif self.HasPlayerWon(curr_board, self.OtherPlayer(token)):
+            elif self.HasPlayerWon(curr_board, self.opp_token):
                 return -math.inf, None
             else:  # No more valid moves, the game is over
                 return 0, None
         elif depth == 0:  # Depth is 0, return the heuristic value of the board
-            return self.RateMove(curr_board, token), None
+            return self.RateMove(curr_board, self.ai_token), None
 
         if maximizing_player:
             best_score = -math.inf  # Set an extremely small value for max comparison
@@ -246,9 +244,9 @@ class AIManager():
 
             for col in moves_list:
                 board_manager_copy = copy.deepcopy(board_manager)
-                board_manager_copy.UpdateBoard(col, token)
+                board_manager_copy.UpdateBoard(col, self.ai_token)
                 score = self.MiniMax(board_manager_copy, depth-1, alpha, beta, False,
-                                     self.OtherPlayer(token))[0]
+                                     self.opp_token)[0]
 
                 if score > best_score:
                     best_score = score
@@ -258,9 +256,9 @@ class AIManager():
                 if alpha >= beta:
                     break
 
-            # Store the best value and column for the board in the table
-            with self.transposition_table_lock:
-                self.transposition_table[board_key] = (best_score, best_column)
+                # Store the best value and column for the board in the table
+                with self.transposition_table_lock:
+                    self.transposition_table[board_key] = (best_score, best_column)
 
             return best_score, best_column
         else:  # Minimizing player
@@ -269,9 +267,9 @@ class AIManager():
 
             for col in moves_list:
                 board_manager_copy = copy.deepcopy(board_manager)
-                board_manager_copy.UpdateBoard(col, token)
+                board_manager_copy.UpdateBoard(col, self.opp_token)
                 score = self.MiniMax(board_manager_copy, depth-1, alpha, beta, True,
-                                     self.OtherPlayer(token))[0]
+                                     self.ai_token)[0]
 
                 if score < best_score:
                     best_score = score
@@ -281,9 +279,9 @@ class AIManager():
                 if alpha >= beta:
                     break
 
-            # Store the best value and column for the board in the table
-            with self.transposition_table_lock:
-                self.transposition_table[board_key] = (best_score, best_column)
+                # Store the best value and column for the board in the table
+                with self.transposition_table_lock:
+                    self.transposition_table[board_key] = (best_score, best_column)
 
             return best_score, best_column
 
@@ -396,41 +394,3 @@ class AIManager():
                         num_potential_wins += 1
 
         return num_potential_wins
-
-
-'''from board import Board
-
-ai = AIManager(6, 7)
-ai.ai_token = "X"
-ai.opp_token = "O"
-
-board = Board(6, 7)
-board.ResetBoard()
-
-test_board = [
-    ['O', 'O', 'O', 'X', 'X', 'O', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'X', 'X'],
-    ['O', 'O', 'O', 'X', 'X', 'O', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'X', 'X'],
-    ['O', 'O', 'O', 'X', 'X', 'O', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'X', 'X']
-]
-
-for row in test_board:
-    for i in range(7):
-        if row[i] != ' ':
-            board.num_tokens_per_col[i + 1] += 1
-
-board.game_board = test_board
-
-for col, num_tokens in board.GetTokensPerColumn().items():
-    print(f"{col}:{num_tokens}")
-
-for row in board.GetGameBoard():
-    print(row)
-
-print(f"\nPlacing an \'O\' token in column(s) {ai.GetValidMoves(board)[1]},\n"
-      f"will result in the opponent winning on their next turn\n")
-
-print(f"Valid moves {ai.GetValidMoves(board)[0]}")
-print(f"Opp moves {ai.GetValidMoves(board)[1]}")'''

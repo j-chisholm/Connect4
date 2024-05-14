@@ -34,7 +34,7 @@ class GameManager:
 
         # Initialize the AI
         self.ai = AIManager(self.rows, self.cols)
-        self.depth = 5
+        self.depth = 7
 
         self.sleep_time = 0
 
@@ -204,10 +204,10 @@ class GameManager:
         self.ui.DrawBoardUI(self.board.GetGameBoard())
 
         # Sets the player to human-controlled and the computer to computer-controlled
-        self.player.SetAsComputer()  # Change to player.SetAsComputer() to pit the AI against itself
+        self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
         self.computer.SetAsComputer()
 
-        #self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
+        self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
 
         # Set an arbitrary default value for the col being hovered over
         prev_hover_col = 1
@@ -221,7 +221,7 @@ class GameManager:
         else:
             self.current_player = self.computer  # Set the turn order to computer always has first turn
 
-        #self.current_player = self.player
+        self.current_player = self.player
 
         # Define the main game loop
         while not self.is_game_over:
