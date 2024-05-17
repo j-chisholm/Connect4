@@ -69,19 +69,33 @@ class Board:
         self.num_tokens_per_col[player_choice] = self.num_tokens_per_col[player_choice] + 1
 
     # Temporarily updates the game board as the player hovers over the columns
-    def TempUpdateBoard(self, hovering_col, player_token):
-        # Update the game board but *do not* update the number of entries in the column
-        row = self.num_tokens_per_col[hovering_col]
-        if row < self.num_rows:
-            self.game_board[self.num_rows - 1 - row][hovering_col - 1] = player_token
+    # Method modified to handle animating the token falling over time
+    def TempUpdateBoard(self, col, player_token, is_animation=False, anim_row=0):
+        # Get last open row
+        row = self.num_tokens_per_col[col]
+
+        # If method is not being used for animation, place token in the last open row
+        if not is_animation:
+            # Update the game board but *do not* update the number of entries in the column
+            if row < self.num_rows:
+                self.game_board[self.num_rows - 1 - row][col - 1] = player_token
+        # Method is being used for animation, place the token in the specified space
+        else:
+            self.game_board[anim_row][col - 1] = player_token
+
 
     # Reset the board to the previous board state
-    def UndoTempBoardUpdate(self, hovering_col):
-        row = self.num_tokens_per_col[hovering_col]
+    def UndoTempBoardUpdate(self, col, is_animation=False, anim_row=0):
+        row = self.num_tokens_per_col[col]
 
-        # If statement prevents the tokens at the bottom of the row from being removed
-        if row < self.num_rows:
-            self.game_board[self.num_rows - 1 - row][hovering_col - 1] = ' '
+        # If method is not being used for animation, place token in the last open row
+        if not is_animation:
+            # If statement prevents the tokens at the bottom of the row from being removed
+            if row < self.num_rows:
+                self.game_board[self.num_rows - 1 - row][col - 1] = ' '
+        # Method is being used for animation, remove the token in the specified space
+        else:
+            self.game_board[anim_row][col - 1] = ' '
 
     # Checks if there are no more empty spaces on the board. Returns a boolean value
     def IsBoardFull(self):

@@ -31,11 +31,12 @@ class GameManager:
         # Instantiate UI and Board objects
         self.ui = Connect4UI(self.rows, self.cols)
         self.board = Board(self.rows, self.cols)
+        self.animation_delay = 100  # in milliseconds
 
         # Initialize the AI
         self.ai = AIManager(self.rows, self.cols)
         self.min_depth = 8
-        self.depth = 8
+        self.depth = 6
         self.depth_scale = 0.25
 
         # Set default player values
@@ -204,7 +205,7 @@ class GameManager:
 
         # Sets the player to human-controlled and the computer to computer-controlled
         self.player.SetAsHuman()  # Change to player.SetAsComputer() to pit the AI against itself
-        self.computer.SetAsComputer()
+        self.computer.SetAsComputer()  # Change to computer.SetAsHuman() to remove the AI
 
         self.ai.SetTokens(self.computer.GetPlayerToken(), self.player.GetPlayerToken())
 
@@ -238,6 +239,9 @@ class GameManager:
                         player_choice = self.ui.ConvertMousePos(event.pos[0]) + 1  # +1 to account for 0-indexing
 
                         if self.board.GetTokensPerColumn()[player_choice] < self.board.num_rows:
+                            # Animate token falling
+                            self.AnimateTokenDrop(player_choice, player_token)
+
                             # Update the board
                             self.board.UpdateBoard(player_choice, player_token)
                             self.ui.DrawBoardUI(self.board.GetGameBoard())
@@ -272,6 +276,9 @@ class GameManager:
             else:
                 # Pick the optimal move
                 ai_choice = self.AIMoveThread(player_token)
+
+                # Animate token falling
+                self.AnimateTokenDrop(ai_choice, player_token)
 
                 # Update the board
                 self.board.UpdateBoard(ai_choice, player_token)
@@ -342,7 +349,7 @@ class GameManager:
         return ai_choice.result
 
     def GetAIMove(self, ai_choice, token):
-        self.CalculateSearchDepth()
+        #self.CalculateSearchDepth()
 
         # Create a lock to synchronize access to ai_choice
         ai_choice_lock = threading.Lock()
@@ -358,4 +365,30 @@ class GameManager:
         # Calculate depth
         self.depth = int((self.depth_scale * board_complexity)) + self.min_depth
 
-        print(f"BC: {board_complexity} - D: {self.depth}")
+        #print(f"BC: {board_complexity} - D: {self.depth}")
+
+    # Animate the token falling to the last open row
+    def AnimateTokenDrop(self, choice, token):
+        # Determine last open row
+        tokens_in_col = self.board.GetTokensPerColumn()[choice]
+        last_open_row = self.rows - 1 - tokens_in_col
+
+        # Place token in (ane remove from) each space between the top row and the last open row
+        for row in range(last_open_row + 1):
+            # Remove ghost token
+            self.board.UndoTempBoardUpdate(choice)
+
+            # Animation
+            # Update the board at the specified location with the player token
+            self.board.TempUpdateBoard(choice, token, True, row)
+
+            # Update the UI with the change and wait a short time to view the change
+            self.ui.DrawBoardUI(self.board.GetGameBoard())
+            pygame.time.delay(self.animation_delay)
+
+            # Undo the update
+            self.board.UndoTempBoardUpdate(choice, True, row)
+            self.ui.DrawBoardUI(self.board.GetGameBoard())
+
+
+
